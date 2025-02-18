@@ -4,6 +4,7 @@ import com.phegondev.usersmanagementsystem.config.JWTAuthFilter;
 import com.phegondev.usersmanagementsystem.dto.ReqRes;
 import com.phegondev.usersmanagementsystem.entity.OurUsers;
 import com.phegondev.usersmanagementsystem.entity.UserRole;
+import com.phegondev.usersmanagementsystem.entity.UserStatus;
 import com.phegondev.usersmanagementsystem.repository.UsersRepo;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +32,35 @@ public class UsersManagementService {
 
     public ReqRes register(ReqRes registrationRequest){
         ReqRes resp = new ReqRes();
-
         try {
             OurUsers ourUser = new OurUsers();
             ourUser.setEmail(registrationRequest.getEmail());
             ourUser.setCity(registrationRequest.getCity());
-            //
-            ourUser.setRole(registrationRequest.getRole() != null ? registrationRequest.getRole() : UserRole.USER);
             ourUser.setName(registrationRequest.getName());
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-            OurUsers ourUsersResult = usersRepo.save(ourUser);
-            if (ourUsersResult.getId()>0) {
-                resp.setOurUsers((ourUsersResult));
-                resp.setMessage("User Saved Successfully");
-                resp.setStatusCode(200);
+            ourUser.setImage(registrationRequest.getImage());
+            ourUser.setNumTel(registrationRequest.getNumTel());  // ✅ Vérifie cette ligne
+            ourUser.setCIN(registrationRequest.getCIN());
+
+            if (registrationRequest.getRole() == null) {
+                ourUser.setRole(UserRole.USER);
+            } else {
+                ourUser.setRole(registrationRequest.getRole());
             }
 
-        }catch (Exception e){
+            if (ourUser.getRole() == UserRole.MODERATOR) {
+                ourUser.setStatus(UserStatus.PENDING);
+            } else {
+                ourUser.setStatus(UserStatus.APPROVED);
+            }
+
+            OurUsers ourUsersResult = usersRepo.save(ourUser);
+            if (ourUsersResult.getId() > 0) {
+                resp.setOurUsers(ourUsersResult);
+                resp.setMessage("User Registered Successfully");
+                resp.setStatusCode(200);
+            }
+        } catch (Exception e){
             resp.setStatusCode(500);
             resp.setError(e.getMessage());
         }
@@ -55,13 +68,28 @@ public class UsersManagementService {
     }
 
 
+
+
+
     public ReqRes login(ReqRes loginRequest){
         ReqRes response = new ReqRes();
         try {
-            authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                            loginRequest.getPassword()));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
             var user = usersRepo.findByEmail(loginRequest.getEmail()).orElseThrow();
+
+            // 🔹 Vérifier si le compte est activé
+            if (user.getStatus() == UserStatus.PENDING) {
+                response.setStatusCode(403);
+                response.setMessage("Your account is pending approval.");
+                return response;
+            } else if (user.getStatus() == UserStatus.REJECTED) {
+                response.setStatusCode(403);
+                response.setMessage("Your account has been rejected.");
+                return response;
+            }
+
             var jwt = jwtUtils.generateToken(user);
             var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
             response.setStatusCode(200);
@@ -71,12 +99,44 @@ public class UsersManagementService {
             response.setExpirationTime("24Hrs");
             response.setMessage("Successfully Logged In");
 
-        }catch (Exception e){
+        } catch (Exception e){
             response.setStatusCode(500);
             response.setMessage(e.getMessage());
         }
         return response;
     }
+
+    public ReqRes approveModerator(Integer userId, boolean approve) {
+        ReqRes response = new ReqRes();
+        try {
+            Optional<OurUsers> userOptional = usersRepo.findById(userId);
+            if (userOptional.isPresent()) {
+                OurUsers moderator = userOptional.get();
+
+                // Vérifier si c'est bien un MODERATOR
+                if (moderator.getRole() != UserRole.MODERATOR) {
+                    response.setStatusCode(400);
+                    response.setMessage("User is not a moderator.");
+                    return response;
+                }
+
+                // Modifier son statut
+                moderator.setStatus(approve ? UserStatus.APPROVED : UserStatus.REJECTED);
+                usersRepo.save(moderator);
+
+                response.setStatusCode(200);
+                response.setMessage("Moderator " + (approve ? "approved" : "rejected") + " successfully.");
+            } else {
+                response.setStatusCode(404);
+                response.setMessage("User not found.");
+            }
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error occurred while updating status: " + e.getMessage());
+        }
+        return response;
+    }
+
 
 
 
@@ -105,7 +165,7 @@ public class UsersManagementService {
         }
     }
 
-
+//pour admin
     public ReqRes getAllUsers() {
         ReqRes reqRes = new ReqRes();
 
@@ -126,8 +186,27 @@ public class UsersManagementService {
             return reqRes;
         }
     }
+    public ReqRes getAllModerators() {
+        ReqRes response = new ReqRes();
+        try {
+            List<OurUsers> moderators = usersRepo.findByRole(UserRole.MODERATOR);
+            if (!moderators.isEmpty()) {
+                response.setOurUsersList(moderators);
+                response.setStatusCode(200);
+                response.setMessage("List of all moderators retrieved successfully.");
+            } else {
+                response.setStatusCode(404);
+                response.setMessage("No moderators found.");
+            }
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error occurred: " + e.getMessage());
+        }
+        return response;
+    }
 
 
+    //pour admin
     public ReqRes getUsersById(Integer id) {
         ReqRes reqRes = new ReqRes();
         try {
@@ -172,10 +251,11 @@ public class UsersManagementService {
                 existingUser.setName(updatedUser.getName());
                 existingUser.setCity(updatedUser.getCity());
                 existingUser.setRole(updatedUser.getRole());
+                existingUser.setImage(updatedUser.getImage());
+                existingUser.setNumTel(updatedUser.getNumTel());
+                existingUser.setCIN(updatedUser.getCIN());
 
-                // Check if password is present in the request
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                    // Encode the password and update it
                     existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
                 }
 
@@ -193,6 +273,7 @@ public class UsersManagementService {
         }
         return reqRes;
     }
+
 
 
     public ReqRes getMyInfo(String email){

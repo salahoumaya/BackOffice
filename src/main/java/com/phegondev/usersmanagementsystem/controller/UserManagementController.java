@@ -34,6 +34,11 @@ public class UserManagementController {
         return ResponseEntity.ok(usersManagementService.getAllUsers());
 
     }
+    @GetMapping("/admin/get-all-moderators")
+    public ResponseEntity<ReqRes> getAllModerators() {
+        return ResponseEntity.ok(usersManagementService.getAllModerators());
+    }
+
 
     @GetMapping("/admin/get-users/{userId}")
     public ResponseEntity<ReqRes> getUSerByID(@PathVariable Integer userId){
@@ -42,9 +47,10 @@ public class UserManagementController {
     }
 
     @PutMapping("/admin/update/{userId}")
-    public ResponseEntity<ReqRes> updateUser(@PathVariable Integer userId, @RequestBody OurUsers reqres){
+    public ResponseEntity<ReqRes> updateUser(@PathVariable Integer userId, @RequestBody OurUsers reqres) {
         return ResponseEntity.ok(usersManagementService.updateUser(userId, reqres));
     }
+
 
     @GetMapping("/adminuser/get-profile")
     public ResponseEntity<ReqRes> getMyProfile(){
@@ -58,6 +64,12 @@ public class UserManagementController {
     public ResponseEntity<ReqRes> deleteUSer(@PathVariable Integer userId){
         return ResponseEntity.ok(usersManagementService.deleteUser(userId));
     }
+
+    @PutMapping("/admin/approve-moderator/{userId}")
+    public ResponseEntity<ReqRes> approveModerator(@PathVariable Integer userId, @RequestParam boolean approve) {
+        return ResponseEntity.ok(usersManagementService.approveModerator(userId, approve));
+    }
+
 
 
 }

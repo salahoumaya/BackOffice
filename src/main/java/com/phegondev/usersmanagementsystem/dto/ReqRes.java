@@ -26,5 +26,7 @@ public class ReqRes {
     private String password;
     private OurUsers ourUsers;
     private List<OurUsers> ourUsersList;
-
+    private String image;
+    private String numTel;
+    private String CIN;
 }

@@ -1,6 +1,5 @@
 package com.phegondev.usersmanagementsystem.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,15 +21,21 @@ public class OurUsers implements UserDetails {
     private String name;
     private String password;
     private String city;
+    private String image;
+    private String numTel;
+    private String CIN;
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.PENDING; // Par défaut, un MODERATOR est "PENDING"
+
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role == null) return List.of(); // Prevent null role issues
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
-
 
     @Override
     public String getUsername() {
@@ -54,6 +59,7 @@ public class OurUsers implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        if (role == UserRole.ADMIN) return true;
+        return status == UserStatus.APPROVED;
     }
 }

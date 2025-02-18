@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/public/**").permitAll()
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
                         .requestMatchers("/user/**").hasRole(UserRole.USER.name())
+                        .requestMatchers("/moderator/**").hasRole(UserRole.MODERATOR.name())
                         .requestMatchers("/adminuser/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name())
 
                         .anyRequest().authenticated())
