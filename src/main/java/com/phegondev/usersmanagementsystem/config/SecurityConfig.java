@@ -1,6 +1,7 @@
 package com.phegondev.usersmanagementsystem.config;
 
 
+import com.phegondev.usersmanagementsystem.entity.UserRole;
 import com.phegondev.usersmanagementsystem.service.OurUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,9 +36,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/public/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // "ROLE_ADMIN"
-                        .requestMatchers("/user/**").hasRole("USER")   // "ROLE_USER"
-                        .requestMatchers("/adminuser/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/user/**").hasRole(UserRole.USER.name())
+                        .requestMatchers("/adminuser/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name())
+
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

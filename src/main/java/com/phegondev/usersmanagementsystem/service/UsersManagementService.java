@@ -3,6 +3,7 @@ package com.phegondev.usersmanagementsystem.service;
 import com.phegondev.usersmanagementsystem.config.JWTAuthFilter;
 import com.phegondev.usersmanagementsystem.dto.ReqRes;
 import com.phegondev.usersmanagementsystem.entity.OurUsers;
+import com.phegondev.usersmanagementsystem.entity.UserRole;
 import com.phegondev.usersmanagementsystem.repository.UsersRepo;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,8 @@ public class UsersManagementService {
             OurUsers ourUser = new OurUsers();
             ourUser.setEmail(registrationRequest.getEmail());
             ourUser.setCity(registrationRequest.getCity());
-            ourUser.setRole(registrationRequest.getRole());
+            //
+            ourUser.setRole(registrationRequest.getRole() != null ? registrationRequest.getRole() : UserRole.USER);
             ourUser.setName(registrationRequest.getName());
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
             OurUsers ourUsersResult = usersRepo.save(ourUser);

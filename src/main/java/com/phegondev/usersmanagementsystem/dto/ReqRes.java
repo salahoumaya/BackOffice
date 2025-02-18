@@ -3,6 +3,7 @@ package com.phegondev.usersmanagementsystem.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.phegondev.usersmanagementsystem.entity.OurUsers;
+import com.phegondev.usersmanagementsystem.entity.UserRole;
 import lombok.Data;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class ReqRes {
     private String expirationTime;
     private String name;
     private String city;
-    private String role;
+    private UserRole role;
     private String email;
     private String password;
     private OurUsers ourUsers;

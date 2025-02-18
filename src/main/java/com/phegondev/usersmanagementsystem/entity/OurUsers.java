@@ -22,12 +22,13 @@ public class OurUsers implements UserDetails {
     private String name;
     private String password;
     private String city;
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) return List.of(); // Prevent null role issues
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
 
