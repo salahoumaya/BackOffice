@@ -30,8 +30,16 @@ public class UsersManagementService {
     private PasswordEncoder passwordEncoder;
 
 
-    public ReqRes register(ReqRes registrationRequest){
+    public ReqRes register(ReqRes registrationRequest) {
         ReqRes resp = new ReqRes();
+
+        // 🔹 Vérifier si l'email existe déjà
+        if (usersRepo.findByEmail(registrationRequest.getEmail()).isPresent()) {
+            resp.setStatusCode(400);
+            resp.setMessage("Cet email est déjà utilisé !");
+            return resp;
+        }
+
         try {
             OurUsers ourUser = new OurUsers();
             ourUser.setEmail(registrationRequest.getEmail());
@@ -39,7 +47,7 @@ public class UsersManagementService {
             ourUser.setName(registrationRequest.getName());
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
             ourUser.setImage(registrationRequest.getImage());
-            ourUser.setNumTel(registrationRequest.getNumTel());  // ✅ Vérifie cette ligne
+            ourUser.setNumTel(registrationRequest.getNumTel());
             ourUser.setCIN(registrationRequest.getCIN());
 
             if (registrationRequest.getRole() == null) {
@@ -57,15 +65,17 @@ public class UsersManagementService {
             OurUsers ourUsersResult = usersRepo.save(ourUser);
             if (ourUsersResult.getId() > 0) {
                 resp.setOurUsers(ourUsersResult);
-                resp.setMessage("User Registered Successfully");
+                resp.setMessage("Utilisateur enregistré avec succès !");
                 resp.setStatusCode(200);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             resp.setStatusCode(500);
             resp.setError(e.getMessage());
         }
+
         return resp;
     }
+
 
 
 

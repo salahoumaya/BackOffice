@@ -3,6 +3,7 @@ package com.phegondev.usersmanagementsystem.controller;
 import com.phegondev.usersmanagementsystem.dto.ReqRes;
 import com.phegondev.usersmanagementsystem.entity.OurUsers;
 import com.phegondev.usersmanagementsystem.service.UsersManagementService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,9 +16,10 @@ public class UserManagementController {
     private UsersManagementService usersManagementService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity<ReqRes> regeister(@RequestBody ReqRes reg){
+    public ResponseEntity<ReqRes> register(@Valid @RequestBody ReqRes reg) {
         return ResponseEntity.ok(usersManagementService.register(reg));
     }
+
 
     @PostMapping("/auth/login")
     public ResponseEntity<ReqRes> login(@RequestBody ReqRes req){

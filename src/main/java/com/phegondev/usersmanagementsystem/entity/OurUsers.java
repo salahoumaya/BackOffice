@@ -22,8 +22,8 @@ public class OurUsers implements UserDetails {
     private String password;
     private String city;
     private String image;
-    private String numTel;
-    private String CIN;
+    private Long numTel;
+    private Long CIN;
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
