@@ -3,7 +3,6 @@ package com.userPI.usersmanagementsystem.controller;
 import com.userPI.usersmanagementsystem.dto.TestDTO;
 import com.userPI.usersmanagementsystem.dto.TestSubmissionDTO;
 import com.userPI.usersmanagementsystem.service.TestService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,21 +12,21 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/admin/tests")
-@PreAuthorize("hasRole('ADMIN')") // 🔒 Sécurisation des endpoints admin
-public class TestController {
+@RequestMapping("/user/tests")
+@PreAuthorize("hasRole('USER')") // 🔒 Accessible uniquement aux utilisateurs authentifiés
+public class UserTestController {
 
     @Autowired
     private TestService testService;
 
-    // ✅ Récupérer tous les tests
+    // ✅ Récupérer la liste des tests disponibles
     @GetMapping
-    public ResponseEntity<List<TestDTO>> getAllTests() {
-        List<TestDTO> tests = testService.getAllTests();
+    public ResponseEntity<List<TestDTO>> getAvailableTests() {
+        List<TestDTO> tests = testService.getAllTests(); // 📌 Ici, on peut ajouter un filtre pour les tests actifs
         return ResponseEntity.ok(tests);
     }
 
-    // ✅ Récupérer un test par ID
+    // ✅ Récupérer un test par ID pour répondre aux questions
     @GetMapping("/{id}")
     public ResponseEntity<TestDTO> getTestById(@PathVariable Long id) {
         Optional<TestDTO> testDTO = testService.getTestById(id);
@@ -35,26 +34,10 @@ public class TestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<TestDTO> createTest(@Valid @RequestBody TestDTO testDTO) {
-        System.out.println("🛠 Requête reçue pour création de test : " + testDTO);
-        TestDTO createdTest = testService.createTest(testDTO);
-        return ResponseEntity.ok(createdTest);
-    }
-
-
-    // ✅ Supprimer un test
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTest(@PathVariable Long id) {
-        testService.deleteTest(id);
-        return ResponseEntity.noContent().build();
-    }
-
+    // ✅ Soumettre un test et calculer le score
     @PostMapping("/submit")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Double> submitTest(@RequestBody TestSubmissionDTO submissionDTO) {
         double score = testService.evaluateTest(submissionDTO);
         return ResponseEntity.ok(score);
     }
-
 }

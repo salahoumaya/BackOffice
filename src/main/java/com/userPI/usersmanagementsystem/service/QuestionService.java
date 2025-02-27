@@ -8,12 +8,11 @@ import com.userPI.usersmanagementsystem.repository.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class QuestionService implements IQuestionService {
+public class QuestionService {
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -25,19 +24,37 @@ public class QuestionService implements IQuestionService {
         return questionRepository.findAll().stream().map(question -> new QuestionDTO(
                 question.getId(),
                 question.getQuestionText(),
-                question.getAnswerOptions(),
+                question.getOptionA(),
+                question.getOptionB(),
+                question.getOptionC(),
+                question.getOptionD(),
                 question.getCorrectAnswer()
-                // ✅ Include Test Title
         )).collect(Collectors.toList());
     }
 
     public QuestionDTO createQuestion(QuestionDTO questionDTO, Long testId) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found"));
+                .orElseThrow(() -> new RuntimeException("Test non trouvé"));
+
+        // Validation : au moins 3 options doivent être remplies
+        if (questionDTO.getOptionA().isEmpty() || questionDTO.getOptionB().isEmpty() || questionDTO.getOptionC().isEmpty()) {
+            throw new RuntimeException("Une question doit avoir au moins trois options");
+        }
+
+        // Validation : la réponse correcte doit être l'une des options
+        if (!questionDTO.getCorrectAnswer().equals(questionDTO.getOptionA()) &&
+                !questionDTO.getCorrectAnswer().equals(questionDTO.getOptionB()) &&
+                !questionDTO.getCorrectAnswer().equals(questionDTO.getOptionC()) &&
+                (questionDTO.getOptionD() == null || !questionDTO.getCorrectAnswer().equals(questionDTO.getOptionD()))) {
+            throw new RuntimeException("La réponse correcte doit être l'une des options fournies");
+        }
 
         Question question = new Question();
         question.setQuestionText(questionDTO.getQuestionText());
-        question.setAnswerOptions(questionDTO.getAnswerOptions());
+        question.setOptionA(questionDTO.getOptionA());
+        question.setOptionB(questionDTO.getOptionB());
+        question.setOptionC(questionDTO.getOptionC());
+        question.setOptionD(questionDTO.getOptionD());
         question.setCorrectAnswer(questionDTO.getCorrectAnswer());
         question.setTest(test);
 
@@ -45,14 +62,10 @@ public class QuestionService implements IQuestionService {
         return new QuestionDTO(
                 savedQuestion.getId(),
                 savedQuestion.getQuestionText(),
-                savedQuestion.getAnswerOptions(),
-                savedQuestion.getCorrectAnswer()
-                // ✅ Include Test Title
-        );
-    }
-
-    @Override
-    public List<QuestionDTO> getQuestionsByCategory(String category) {
-        return List.of();
+                savedQuestion.getOptionA(),
+                savedQuestion.getOptionB(),
+                savedQuestion.getOptionC(),
+                savedQuestion.getOptionD(),
+                savedQuestion.getCorrectAnswer());
     }
 }
