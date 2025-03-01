@@ -12,10 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsersManagementService {
@@ -29,6 +31,21 @@ public class UsersManagementService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
+
+    public List<String> getAllUserEmails() {
+        List<OurUsers> usersList = usersRepo.findAll();
+
+
+        List<String> emails = usersList.stream()
+                .map(OurUsers::getEmail)
+                .filter(email -> email != null && !email.isEmpty())
+                .collect(Collectors.toList());
+
+        System.out.println("Emails récupérés : " + emails);
+
+        return emails;
+    }
 
     public ReqRes register(ReqRes registrationRequest) {
         ReqRes resp = new ReqRes();
