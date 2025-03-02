@@ -2,8 +2,9 @@ package com.userPI.usersmanagementsystem.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.userPI.usersmanagementsystem.entity.OurUsers;
-import com.userPI.usersmanagementsystem.entity.UserRole;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+import com.userPI.usersmanagementsystem.entity.user.UserRole;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -41,7 +42,7 @@ public class ReqRes {
     private String city;
 
     private UserRole role;
-
+    @Column(columnDefinition = "LONGTEXT")
     private String image;
 
     @Positive(message = "Le numéro de téléphone doit être un nombre positif")

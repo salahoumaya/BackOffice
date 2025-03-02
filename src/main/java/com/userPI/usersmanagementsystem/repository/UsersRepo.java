@@ -1,8 +1,8 @@
 package com.userPI.usersmanagementsystem.repository;
 
 
-import com.userPI.usersmanagementsystem.entity.OurUsers;
-import com.userPI.usersmanagementsystem.entity.UserRole;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+import com.userPI.usersmanagementsystem.entity.user.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

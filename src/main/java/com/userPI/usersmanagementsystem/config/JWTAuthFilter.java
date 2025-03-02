@@ -1,8 +1,8 @@
 package com.userPI.usersmanagementsystem.config;
 
 
-import com.userPI.usersmanagementsystem.service.JWTUtils;
-import com.userPI.usersmanagementsystem.service.OurUserDetailsService;
+import com.userPI.usersmanagementsystem.service.user.JWTUtils;
+import com.userPI.usersmanagementsystem.service.user.OurUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

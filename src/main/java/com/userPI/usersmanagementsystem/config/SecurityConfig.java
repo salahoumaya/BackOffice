@@ -1,8 +1,8 @@
 package com.userPI.usersmanagementsystem.config;
 
 
-import com.userPI.usersmanagementsystem.entity.UserRole;
-import com.userPI.usersmanagementsystem.service.OurUserDetailsService;
+import com.userPI.usersmanagementsystem.entity.user.UserRole;
+import com.userPI.usersmanagementsystem.service.user.OurUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
