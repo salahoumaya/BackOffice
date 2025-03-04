@@ -7,10 +7,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-
+import javax.servlet.http.HttpServletResponse;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
-
 
 @Tag(name = "Ce Web Service gère le CRUD pour une Candidature")
 @RestController
@@ -19,7 +22,6 @@ import java.util.List;
 public class CandidatureRestController {
 
     ICandidatureService candidatureService;
-
 
     @Operation(description = "Ce web service permet de récupérer toutes les candidatures de la base de données")
     @PreAuthorize("hasRole('ADMIN')")
@@ -54,5 +56,39 @@ public class CandidatureRestController {
     public Candidature modifyCandidature(@RequestBody Candidature c) {
         return candidatureService.modifyCandidature(c);
     }
-}
 
+    // Nouvelle méthode pour télécharger le PDF des candidatures
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/download-pdf")
+    public void downloadPdf(HttpServletResponse response) {
+        // Récupérer toutes les candidatures
+        List<Candidature> candidatures = candidatureService.retrieveAllCandidatures();
+
+        // Créer le PDF
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(outputStream);
+            PdfDocument pdfDocument = new PdfDocument(writer);
+            Document document = new Document(pdfDocument);
+
+            // Ajouter le contenu des candidatures au PDF
+            for (Candidature candidature : candidatures) {
+                document.add(new Paragraph("Candidature ID: " + candidature.getCandidatId()));
+                document.add(new Paragraph("Nom: " + candidature.getNom()));
+                document.add(new Paragraph("Email: " + candidature.getEmail()));
+                // Ajoutez d'autres détails de la candidature ici
+                document.add(new Paragraph("\n"));
+            }
+
+            document.close();
+
+            // Configurer la réponse pour le téléchargement
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=candidatures.pdf");
+            response.setContentLength(outputStream.size());
+            response.getOutputStream().write(outputStream.toByteArray());
+            response.getOutputStream().flush();
+        } catch (Exception e) {
+            e.printStackTrace(); // Gérer l'exception de manière appropriée
+        }
+    }
+}
