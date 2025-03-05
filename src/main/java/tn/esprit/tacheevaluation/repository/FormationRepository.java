@@ -1,0 +1,10 @@
+package tn.esprit.tacheevaluation.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.tacheevaluation.entity.Formation;
+
+
+@Repository
+public interface FormationRepository extends JpaRepository <Formation, Long> {
+}
