@@ -8,6 +8,7 @@ import tn.esprit.tacheevaluation.entity.UserRole;
 import tn.esprit.tacheevaluation.repository.ExamenRepository;
 import tn.esprit.tacheevaluation.repository.UsersRepo;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,6 +82,9 @@ public class ExamenService {
 
         return "Tu es inscrit à l'examen : " + examen.getTitre() + " (ID: " + examen.getId() + ")";
     }
+
+
+
 
 
 

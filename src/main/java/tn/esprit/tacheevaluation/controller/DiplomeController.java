@@ -6,9 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.tacheevaluation.entity.Diplome;
+import tn.esprit.tacheevaluation.entity.Examen;
+import tn.esprit.tacheevaluation.entity.OurUsers;
+import tn.esprit.tacheevaluation.repository.DiplomeRepository;
+import tn.esprit.tacheevaluation.repository.ExamenRepository;
+import tn.esprit.tacheevaluation.repository.UsersRepo;
 import tn.esprit.tacheevaluation.service.DiplomeService;
 
 
+
+
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -16,6 +24,15 @@ import java.util.List;
 public class DiplomeController {
     @Autowired
     private DiplomeService diplomeService;
+    @Autowired
+    private UsersRepo usersRepo;
+
+    @Autowired
+    private ExamenRepository examenRepository;
+
+
+    @Autowired
+    private DiplomeRepository diplomeRepository;
 
     // ✅ Créer un diplôme
     @PostMapping
@@ -51,4 +68,47 @@ public class DiplomeController {
         return ResponseEntity.ok(diplomeService.updateDiplome(id, diplome));
     }
 
+
+
+
+
+
+    @GetMapping("/generate/{diplomaId}/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> generateDiploma(@PathVariable Long diplomaId, @PathVariable Integer userId) {
+        // Vérifier si le diplôme existe
+        Diplome diplome = diplomeRepository.findById(diplomaId)
+                .orElseThrow(() -> new RuntimeException("Diplôme non trouvé"));
+
+        // Vérifier si l'utilisateur existe
+        OurUsers user = usersRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Vérifier si l'utilisateur est bien celui du diplôme
+        if (!diplome.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).body("Cet utilisateur n'est pas associé à ce diplôme !");
+        }
+
+        try {
+            // 📄 Générer le diplôme PDF
+            String filePath = diplomeService.generateDiploma(diplome, user);
+
+            System.out.println("✅ Diplôme généré avec succès : " + filePath);
+            return ResponseEntity.ok("Diplôme généré avec succès : " + filePath);
+        } catch (Exception e) {  // <-- Capture toutes les exceptions
+            e.printStackTrace();  // <-- Affiche l'erreur exacte dans la console
+            return ResponseEntity.status(500).body("Erreur lors de la génération du diplôme : " + e.getMessage());
+        }
+    }
+
 }
+
+
+
+
+
+
+
+
+
+

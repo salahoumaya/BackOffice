@@ -1,12 +1,17 @@
 package tn.esprit.tacheevaluation.controller;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.tacheevaluation.entity.Examen;
-import tn.esprit.tacheevaluation.entity.OurUsers;
+
 import tn.esprit.tacheevaluation.service.ExamenService;
+
+
 
 import java.util.List;
 
@@ -15,6 +20,7 @@ import java.util.List;
 public class ExamenController {
     @Autowired
     private ExamenService examenService;
+
 
     // ✅ Voir tous les examens (étudiants, admin, modérateur)
     @GetMapping
@@ -58,6 +64,10 @@ public class ExamenController {
         List<String> participants = examenService.getParticipantsByExamen(examenId);
         return ResponseEntity.ok(participants);
     }
+
+
+
+
 
 
 }
