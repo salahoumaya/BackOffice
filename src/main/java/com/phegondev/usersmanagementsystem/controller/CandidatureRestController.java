@@ -5,14 +5,13 @@ import com.phegondev.usersmanagementsystem.service.ICandidatureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletResponse;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import java.io.ByteArrayOutputStream;
+
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "Ce Web Service gère le CRUD pour une Candidature")
@@ -21,7 +20,7 @@ import java.util.List;
 @RequestMapping("/candidatures")
 public class CandidatureRestController {
 
-    ICandidatureService candidatureService;
+    private final ICandidatureService candidatureService;
 
     @Operation(description = "Ce web service permet de récupérer toutes les candidatures de la base de données")
     @PreAuthorize("hasRole('ADMIN')")
@@ -32,63 +31,37 @@ public class CandidatureRestController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/retrieve-candidature/{candidature-id}")
-    public Candidature retrieveCandidature(@PathVariable("candidature-id") Long chId) {
-        return candidatureService.retrieveCandidature(chId);
+    public Candidature retrieveCandidature(@PathVariable("candidature-id") Long candidatureId) {
+        return candidatureService.retrieveCandidature(candidatureId);
     }
 
-    // ✅ Restreindre POST aux admins
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/add-candidature")
-    public Candidature addCandidature(@RequestBody Candidature c) {
-        return candidatureService.addCandidature(c);
+    public Candidature addCandidature(@RequestBody Candidature candidature) {
+        return candidatureService.addCandidature(candidature);
     }
 
-    // ✅ Restreindre DELETE aux admins
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/remove-candidature/{candidature-id}")
-    public void removeCandidature(@PathVariable("candidature-id") Long chId) {
-        candidatureService.removeCandidature(chId);
+    public void removeCandidature(@PathVariable("candidature-id") Long candidatureId) {
+        candidatureService.removeCandidature(candidatureId);
     }
 
-    // ✅ Restreindre PUT aux admins
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/modify-candidature")
-    public Candidature modifyCandidature(@RequestBody Candidature c) {
-        return candidatureService.modifyCandidature(c);
+    public Candidature modifyCandidature(@RequestBody Candidature candidature) {
+        return candidatureService.modifyCandidature(candidature);
     }
 
-    // Nouvelle méthode pour télécharger le PDF des candidatures
+    // ✅ Nouvelle méthode pour télécharger le PDF
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/download-pdf")
-    public void downloadPdf(HttpServletResponse response) {
-        // Récupérer toutes les candidatures
-        List<Candidature> candidatures = candidatureService.retrieveAllCandidatures();
+    public ResponseEntity<byte[]> downloadPdf() throws IOException {
+        byte[] pdfData = candidatureService.generateCandidaturePdf();
 
-        // Créer le PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            PdfWriter writer = new PdfWriter(outputStream);
-            PdfDocument pdfDocument = new PdfDocument(writer);
-            Document document = new Document(pdfDocument);
-
-            // Ajouter le contenu des candidatures au PDF
-            for (Candidature candidature : candidatures) {
-                document.add(new Paragraph("Candidature ID: " + candidature.getCandidatId()));
-                document.add(new Paragraph("Nom: " + candidature.getNom()));
-                document.add(new Paragraph("Email: " + candidature.getEmail()));
-                // Ajoutez d'autres détails de la candidature ici
-                document.add(new Paragraph("\n"));
-            }
-
-            document.close();
-
-            // Configurer la réponse pour le téléchargement
-            response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "attachment; filename=candidatures.pdf");
-            response.setContentLength(outputStream.size());
-            response.getOutputStream().write(outputStream.toByteArray());
-            response.getOutputStream().flush();
-        } catch (Exception e) {
-            e.printStackTrace(); // Gérer l'exception de manière appropriée
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=candidatures.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfData);
     }
 }

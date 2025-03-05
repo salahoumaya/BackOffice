@@ -20,7 +20,7 @@ public class Candidature {
     private String nom;
     private String prenom;
     private String email;
-    private String cv;
+    private long nbr_exp;
     private String specialite;
     @Enumerated(EnumType.STRING)
     private etatCandidature statut;

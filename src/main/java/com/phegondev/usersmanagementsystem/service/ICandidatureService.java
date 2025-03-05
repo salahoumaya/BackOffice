@@ -2,7 +2,7 @@ package com.phegondev.usersmanagementsystem.service;
 
 import com.phegondev.usersmanagementsystem.entity.Candidature;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public interface ICandidatureService {
@@ -13,12 +13,6 @@ public interface ICandidatureService {
     void removeCandidature(Long candidatureId);
     Candidature modifyCandidature(Candidature candidature);
 
-    // Nouvelle méthode pour générer un PDF des candidatures
-    ByteArrayOutputStream generateCandidaturePdf();
-
-    // Autres méthodes commentées
-    // List<Candidature> findCandidaturesBySpecialite(String specialite);
-    // void importCV(Long candidatureId, String cv);
-    // List<HistoryRecord> getCandidatureHistory(Long candidatureId);
-    // Report generateReport(ReportCriteria criteria);
+    // 📌 Ajout de la méthode pour générer un PDF
+    byte[] generateCandidaturePdf() throws IOException;
 }
