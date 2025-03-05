@@ -41,10 +41,12 @@ public class TestService implements ITestService {
     public List<TestDTO> getAllTests() {
         return testRepository.findAll().stream().map(test -> new TestDTO(
                 test.getId(),
+                test.getImage(),
                 test.getTitle(),
                 test.getDescription(),
                 test.getScheduledAt(),
                 test.getDuration(),
+
                 test.getScore(),
                 test.getQuestions().stream().map(q -> new QuestionDTO(
                         q.getId(),
@@ -61,9 +63,11 @@ public class TestService implements ITestService {
     public Optional<TestDTO> getTestById(Long id) {
         return testRepository.findById(id).map(test -> new TestDTO(
                 test.getId(),
+                test.getImage(),
                 test.getTitle(),
                 test.getDescription(),
                 test.getScheduledAt(),
+
                 test.getDuration(),
                 test.getScore(),
 
@@ -86,9 +90,17 @@ public class TestService implements ITestService {
         test.setScheduledAt(testDTO.getScheduledAt());
         test.setDuration(testDTO.getDuration());
         test.setScore(testDTO.getScore());
+        test.setImage(testDTO.getImage());
+
 
         Test savedTest = testRepository.save(test);
-        return new TestDTO(savedTest.getId(), savedTest.getTitle(), savedTest.getDescription(), savedTest.getScheduledAt(), savedTest.getDuration(), savedTest.getScore(), null);
+        return new TestDTO(savedTest.getId(),
+                savedTest.getImage(),
+                savedTest.getTitle(),
+                savedTest.getDescription(),
+                savedTest.getScheduledAt(),
+                savedTest.getDuration(),
+                savedTest.getScore(), null);
     }
 
     public void deleteTest(Long id) {
@@ -171,6 +183,7 @@ public class TestService implements ITestService {
                 submission.getUser().getId().longValue(),
                 submission.getUser().getName(),
                 submission.getTest().getId(),
+
                 submission.getScore(),
                 submission.getSubmittedAt(),
                 submission.getStartTime(),

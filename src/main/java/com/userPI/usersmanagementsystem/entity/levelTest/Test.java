@@ -19,8 +19,9 @@ public class Test {
     private String title;
     private String description;
     private LocalDateTime scheduledAt;
-    private int duration; // en minutes
-    private Float score; // score total du test
+    private int duration;
+    private Float score;
+    private String image;
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
     private List<TestSubmission> submissions;
