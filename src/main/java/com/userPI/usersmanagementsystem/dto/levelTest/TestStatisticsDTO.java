@@ -5,20 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestSubmissionDTO {
-    private Long userId;
-    private String userName;
+public class TestStatisticsDTO {
     private Long testId;
-    private double score;
-    private LocalDateTime submittedAt;
-    private LocalDateTime startTime;
-    private List<AnswerDTO> answers;
+    private String testName;
+    private double averageScore;
+    private int totalParticipants;
+    private double passRate;
+    private List<QuestionStatisticsDTO> difficultQuestions;
+    private BestTestDTO bestTest;
 
 
 

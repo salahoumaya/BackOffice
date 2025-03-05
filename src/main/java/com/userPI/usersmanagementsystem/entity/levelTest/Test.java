@@ -23,5 +23,7 @@ public class Test {
     private Float score; // score total du test
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
+    private List<TestSubmission> submissions;
+    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
     private List<Question> questions;
 }

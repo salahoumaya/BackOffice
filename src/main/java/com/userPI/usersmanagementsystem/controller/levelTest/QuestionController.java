@@ -1,6 +1,7 @@
 package com.userPI.usersmanagementsystem.controller.levelTest;
 
 import com.userPI.usersmanagementsystem.dto.levelTest.QuestionDTO;
+import com.userPI.usersmanagementsystem.service.TesLevel.IQuestionService;
 import com.userPI.usersmanagementsystem.service.TesLevel.QuestionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,9 @@ import java.util.List;
 @RequestMapping("/admin/questions")
 @PreAuthorize("hasRole('ADMIN')")
 public class QuestionController {
+@Autowired
 
-    @Autowired
-    private QuestionService questionService;
+     IQuestionService questionService;
 
 
     @GetMapping

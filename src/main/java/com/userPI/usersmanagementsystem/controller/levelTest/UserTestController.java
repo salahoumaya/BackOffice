@@ -4,6 +4,7 @@ import com.userPI.usersmanagementsystem.dto.levelTest.TestDTO;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestSubmissionDTO;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.UsersRepo;
+import com.userPI.usersmanagementsystem.service.TesLevel.ITestService;
 import com.userPI.usersmanagementsystem.service.TesLevel.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user/tests")
 @PreAuthorize("hasRole('USER')")
+
 public class UserTestController {
 
     @Autowired
-     TestService testService;
+    ITestService testService;
     @Autowired
     UsersRepo userRepository;
 

@@ -4,6 +4,8 @@ import com.userPI.usersmanagementsystem.entity.levelTest.Test;
 import com.userPI.usersmanagementsystem.entity.levelTest.TestSubmission;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,25 @@ public interface TestSubmissionRepository extends JpaRepository<TestSubmission, 
         Optional<TestSubmission> findByUserAndTest(OurUsers user, Test test);
         //pour recupere tous les test
          List<TestSubmission> findByTest(Test test);
+
+    // ✅ Trouver toutes les soumissions par ID de test
+    List<TestSubmission> findByTestId(Long testId);
+
+    // ✅ Trouver le score moyen pour un test donné
+    @Query("SELECT AVG(ts.score) FROM TestSubmission ts WHERE ts.test.id = :testId")
+    double findAverageScoreByTestId(@Param("testId") Long testId);
+
+    // ✅ Compter le nombre de participants
+    long countByTestId(Long testId);
+
+    // ✅ Compter les participants ayant un score >= 50
+    long countByTestIdAndScoreGreaterThanEqual(Long testId, double scoreThreshold);
+
+    // ✅ Trouver les questions les plus difficiles
+    @Query("SELECT q.id, q.questionText, COUNT(a) as correctCount FROM UserAnswer a " +
+            "JOIN a.question q WHERE a.isCorrect = true AND q.test.id = :testId " +
+            "GROUP BY q.id ORDER BY correctCount ASC LIMIT 5")
+    List<Object[]> findDifficultQuestionsByTestId(@Param("testId") Long testId);
 
 
 

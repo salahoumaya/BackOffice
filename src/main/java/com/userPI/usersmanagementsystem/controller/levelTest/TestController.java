@@ -1,8 +1,10 @@
 package com.userPI.usersmanagementsystem.controller.levelTest;
 
 import com.userPI.usersmanagementsystem.dto.levelTest.TestDTO;
+import com.userPI.usersmanagementsystem.dto.levelTest.TestStatisticsDTO;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestSubmissionDTO;
-import com.userPI.usersmanagementsystem.service.TesLevel.TestService;
+import com.userPI.usersmanagementsystem.service.TesLevel.ITestService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ import java.util.Optional;
 public class TestController {
 
     @Autowired
-    private TestService testService;
+    ITestService testService;
 
 
     @GetMapping
@@ -49,8 +51,15 @@ public class TestController {
     }
     @GetMapping("/{testId}/submissions")
     public ResponseEntity<List<TestSubmissionDTO>> getTestSubmissions(@PathVariable Long testId) {
-        return ResponseEntity.ok(testService.getTestSubmissions(testId));
+        List<TestSubmissionDTO> submissions = testService.getTestSubmissions(testId);
+        return ResponseEntity.ok(submissions);
     }
+    @GetMapping("/{testId}/statistics")
+    public ResponseEntity<TestStatisticsDTO> getTestStatistics(@PathVariable Long testId) {
+        return ResponseEntity.ok(testService.getTestStatistics(testId));
+    }
+
+
 
 
 

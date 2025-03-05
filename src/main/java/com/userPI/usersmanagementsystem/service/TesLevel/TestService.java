@@ -1,9 +1,6 @@
 package com.userPI.usersmanagementsystem.service.TesLevel;
 
-import com.userPI.usersmanagementsystem.dto.levelTest.AnswerDTO;
-import com.userPI.usersmanagementsystem.dto.levelTest.QuestionDTO;
-import com.userPI.usersmanagementsystem.dto.levelTest.TestDTO;
-import com.userPI.usersmanagementsystem.dto.levelTest.TestSubmissionDTO;
+import com.userPI.usersmanagementsystem.dto.levelTest.*;
 import com.userPI.usersmanagementsystem.entity.levelTest.Question;
 import com.userPI.usersmanagementsystem.entity.levelTest.Test;
 import com.userPI.usersmanagementsystem.entity.levelTest.TestSubmission;
@@ -18,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class TestService {
+public class TestService implements ITestService {
     @Autowired
     TestRepository testRepository;
     @Autowired
@@ -173,21 +168,65 @@ public class TestService {
         List<TestSubmission> submissions = testSubmissionRepository.findByTest(test);
 
         return submissions.stream().map(submission -> new TestSubmissionDTO(
-                submission.getTest().getId(),  // ✅ Utiliser uniquement l'ID du test
+                submission.getUser().getId().longValue(),
+                submission.getUser().getName(),
+                submission.getTest().getId(),
+                submission.getScore(),
+                submission.getSubmittedAt(),
+                submission.getStartTime(),
                 submission.getUserAnswers().stream().map(answer -> new AnswerDTO(
                         answer.getQuestion().getId(),
                         answer.getUserAnswer(),
                         answer.isCorrect()
-                )).collect(Collectors.toList()),
-                submission.getScore(),
-                submission.getSubmittedAt(),
-                submission.getStartTime()
+                )).collect(Collectors.toList())
         )).collect(Collectors.toList());
     }
 
 
 
+    public TestStatisticsDTO getTestStatistics(Long testId) {
+        // ✅ Récupérer le nom du test depuis le repository
+        String testName = testRepository.findById(testId)
+                .map(Test::getTitle)
+                .orElse("Test inconnu");
+
+        // ✅ Utilisation des méthodes du Repository avec keywords
+        double averageScore = testSubmissionRepository.findAverageScoreByTestId(testId);
+        int totalParticipants = (int) testSubmissionRepository.countByTestId(testId);
+        long passCount = testSubmissionRepository.countByTestIdAndScoreGreaterThanEqual(testId, 50.0);
+
+        double passRate = totalParticipants > 0 ? (double) passCount / totalParticipants * 100 : 0.0;
+
+        List<QuestionStatisticsDTO> difficultQuestions = testSubmissionRepository.findDifficultQuestionsByTestId(testId).stream()
+                .map(obj -> new QuestionStatisticsDTO(
+                        ((Number) obj[0]).longValue(),
+                        (String) obj[1],
+                        ((Number) obj[2]).doubleValue()
+                ))
+                .collect(Collectors.toList());
 
 
+        BestTestDTO bestTest = new BestTestDTO(testName, averageScore);
 
+
+        return new TestStatisticsDTO(testId, testName, averageScore, totalParticipants, passRate, difficultQuestions, bestTest);
     }
+
+
+
+
+
+
+
+    @Override
+    public double getTestSuccessRate(Long testId) {
+        return 0;
+    }
+
+    @Override
+    public byte[] exportTestResultsToExcel(Long testId) {
+        return new byte[0];
+    }
+
+
+}

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class QuestionService {
+public class QuestionService implements IQuestionService {
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -67,5 +67,10 @@ public class QuestionService {
                 savedQuestion.getOptionC(),
                 savedQuestion.getOptionD(),
                 savedQuestion.getCorrectAnswer());
+    }
+
+    @Override
+    public List<QuestionDTO> getQuestionsByCategory(String category) {
+        return List.of();
     }
 }
