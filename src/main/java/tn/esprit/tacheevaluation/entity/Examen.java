@@ -1,7 +1,9 @@
 package tn.esprit.tacheevaluation.entity;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -17,7 +19,16 @@ public class Examen {
     private TypeExamen ExamenT; // oral ou écrit
 
     private String session; // principale ou contrôle
-    private Date date;
+    private LocalDateTime date;
+
+    public LocalDateTime getDate() {
+        return LocalDateTime.from(date);
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     private Integer duree; // en minutes
 
     @ManyToOne
@@ -52,8 +63,7 @@ public class Examen {
     public String getSession() { return session; }
     public void setSession(String session) { this.session = session; }
 
-    public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
+
 
     public Integer getDuree() { return duree; }
     public void setDuree(Integer duree) { this.duree = duree; }

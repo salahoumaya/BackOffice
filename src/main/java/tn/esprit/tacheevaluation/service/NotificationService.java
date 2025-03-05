@@ -8,14 +8,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
 
-    private final JavaMailSender mailSender;
-
     @Autowired
-    public NotificationService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    private JavaMailSender mailSender;
 
-    public void envoyerRappelEmail(String to, String sujet, String message) {
+    public void envoyerEmail(String to, String sujet, String message) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(sujet);
