@@ -24,6 +24,7 @@ public class QuestionService implements IQuestionService {
         return questionRepository.findAll().stream().map(question -> new QuestionDTO(
                 question.getId(),
                 question.getQuestionText(),
+                question.getQuestionImage(),
                 question.getOptionA(),
                 question.getOptionB(),
                 question.getOptionC(),
@@ -36,12 +37,10 @@ public class QuestionService implements IQuestionService {
         Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new RuntimeException("Test non trouvé"));
 
-        // Validation : au moins 3 options doivent être remplies
         if (questionDTO.getOptionA().isEmpty() || questionDTO.getOptionB().isEmpty() || questionDTO.getOptionC().isEmpty()) {
             throw new RuntimeException("Une question doit avoir au moins trois options");
         }
 
-        // Validation : la réponse correcte doit être l'une des options
         if (!questionDTO.getCorrectAnswer().equals(questionDTO.getOptionA()) &&
                 !questionDTO.getCorrectAnswer().equals(questionDTO.getOptionB()) &&
                 !questionDTO.getCorrectAnswer().equals(questionDTO.getOptionC()) &&
@@ -58,19 +57,23 @@ public class QuestionService implements IQuestionService {
         question.setCorrectAnswer(questionDTO.getCorrectAnswer());
         question.setTest(test);
 
+        if (questionDTO.getQuestionImage() != null && !questionDTO.getQuestionImage().isEmpty()) {
+            question.setQuestionImage(questionDTO.getQuestionImage());  // 🟢 Enregistrer l'image
+        }
+
         Question savedQuestion = questionRepository.save(question);
         return new QuestionDTO(
                 savedQuestion.getId(),
                 savedQuestion.getQuestionText(),
+                savedQuestion.getQuestionImage(),  // 🟢 Retourner l'image
                 savedQuestion.getOptionA(),
                 savedQuestion.getOptionB(),
                 savedQuestion.getOptionC(),
                 savedQuestion.getOptionD(),
-                savedQuestion.getCorrectAnswer());
+                savedQuestion.getCorrectAnswer()
+        );
     }
 
-    @Override
-    public List<QuestionDTO> getQuestionsByCategory(String category) {
-        return List.of();
-    }
+
+
 }

@@ -17,6 +17,9 @@ public class Question {
 
     @Column(nullable = false)
     private String questionText;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String questionImage;  //
 
     @Column(nullable = false)
     private String optionA;

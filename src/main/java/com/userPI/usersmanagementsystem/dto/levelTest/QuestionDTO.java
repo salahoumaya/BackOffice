@@ -16,6 +16,7 @@ public class QuestionDTO {
 
     @NotBlank(message = "Le texte de la question ne peut pas être vide")
     private String questionText;
+    private String questionImage;
 
     @NotBlank(message = "L'option A est obligatoire")
     private String optionA;

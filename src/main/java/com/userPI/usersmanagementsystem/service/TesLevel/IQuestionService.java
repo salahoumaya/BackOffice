@@ -12,9 +12,6 @@ public interface IQuestionService {
 
 
 
-    List<QuestionDTO> getQuestionsByCategory(String category);
-
-
 
 
 

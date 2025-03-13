@@ -18,15 +18,16 @@ public interface ITestService {
     public double evaluateAndSaveTest(Integer userId, TestSubmissionDTO submissionDTO);
     public List<TestSubmissionDTO> getTestSubmissions(Long testId);
     public TestStatisticsDTO getTestStatistics(Long testId);
-
-
-    double getTestSuccessRate(Long testId);
-
+    public TestDTO updateTest(Long id, TestDTO testDTO);
 
 
 
 
-    byte[] exportTestResultsToExcel(Long testId);
+
+
+
+
+
 
 
 

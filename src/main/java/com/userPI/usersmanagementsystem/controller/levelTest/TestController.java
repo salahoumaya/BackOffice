@@ -43,6 +43,11 @@ public class TestController {
         TestDTO createdTest = testService.createTest(testDTO);
         return ResponseEntity.ok(createdTest);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<TestDTO> updateTest(@PathVariable Long id, @RequestBody TestDTO testDTO) {
+        TestDTO updatedTest = testService.updateTest(id, testDTO);
+        return ResponseEntity.ok(updatedTest);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTest(@PathVariable Long id) {

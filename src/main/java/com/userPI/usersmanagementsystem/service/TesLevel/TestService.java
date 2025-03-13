@@ -51,6 +51,7 @@ public class TestService implements ITestService {
                 test.getQuestions().stream().map(q -> new QuestionDTO(
                         q.getId(),
                         q.getQuestionText(),
+                        q.getQuestionImage(),
                         q.getOptionA(),
                         q.getOptionB(),
                         q.getOptionC(),
@@ -74,6 +75,7 @@ public class TestService implements ITestService {
                 test.getQuestions().stream().map(q -> new QuestionDTO(
                         q.getId(),
                         q.getQuestionText(),
+                        q.getQuestionImage(),
                         q.getOptionA(),
                         q.getOptionB(),
                         q.getOptionC(),
@@ -102,6 +104,46 @@ public class TestService implements ITestService {
                 savedTest.getDuration(),
                 savedTest.getScore(), null);
     }
+    public TestDTO updateTest(Long id, TestDTO testDTO) {
+        Test test = testRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Test introuvable avec l'ID : " + id));
+
+
+        test.setTitle(testDTO.getTitle());
+        test.setDescription(testDTO.getDescription());
+        test.setScheduledAt(testDTO.getScheduledAt());
+        test.setDuration(testDTO.getDuration());
+        test.setScore(testDTO.getScore());
+
+        if (testDTO.getImage() != null && !testDTO.getImage().isEmpty()) {
+            test.setImage(testDTO.getImage());
+        }
+
+        Test updatedTest = testRepository.save(test);
+
+        return new TestDTO(
+                updatedTest.getId(),
+                updatedTest.getImage(),
+                updatedTest.getTitle(),
+                updatedTest.getDescription(),
+                updatedTest.getScheduledAt(),
+                updatedTest.getDuration(),
+                updatedTest.getScore(),
+                updatedTest.getQuestions().stream().map(q -> new QuestionDTO(
+                        q.getId(),
+                        q.getQuestionText(),
+                        q.getQuestionImage(),
+                        q.getOptionA(),
+                        q.getOptionB(),
+                        q.getOptionC(),
+                        q.getOptionD(),
+                        q.getCorrectAnswer()
+                )).collect(Collectors.toList())
+        );
+    }
+
+
+
 
     public void deleteTest(Long id) {
         testRepository.deleteById(id);
@@ -127,13 +169,13 @@ public class TestService implements ITestService {
             testSubmission = existingSubmissionOpt.get();
 
             if (testSubmission.getSubmittedAt() != null) {
-                throw new RuntimeException("🚫 Ce test a déjà été soumis, vous ne pouvez plus soumettre à nouveau !");
+                throw new RuntimeException(" Ce test a déjà été soumis, vous ne pouvez plus soumettre à nouveau !");
             }
 
 
             long elapsedTime = java.time.Duration.between(testSubmission.getStartTime(), currentTime).toMinutes();
             if (elapsedTime > test.getDuration()) {
-                throw new RuntimeException("⏳ Temps écoulé ! Vous ne pouvez plus soumettre ce test.");
+                throw new RuntimeException(" Temps écoulé ! Vous ne pouvez plus soumettre ce test.");
             }
         } else {
 
@@ -164,7 +206,7 @@ public class TestService implements ITestService {
 
         double score = ((double) correctAnswers / totalQuestions) * test.getScore();
         testSubmission.setScore(score);
-        testSubmission.setSubmittedAt(currentTime); // Marque la soumission comme terminée
+        testSubmission.setSubmittedAt(currentTime);
         testSubmission.setUserAnswers(userAnswers);
 
         testSubmissionRepository.save(testSubmission);
@@ -198,12 +240,12 @@ public class TestService implements ITestService {
 
 
     public TestStatisticsDTO getTestStatistics(Long testId) {
-        // ✅ Récupérer le nom du test depuis le repository
+
         String testName = testRepository.findById(testId)
                 .map(Test::getTitle)
                 .orElse("Test inconnu");
 
-        // ✅ Utilisation des méthodes du Repository avec keywords
+
         double averageScore = testSubmissionRepository.findAverageScoreByTestId(testId);
         int totalParticipants = (int) testSubmissionRepository.countByTestId(testId);
         long passCount = testSubmissionRepository.countByTestIdAndScoreGreaterThanEqual(testId, 50.0);
@@ -231,15 +273,7 @@ public class TestService implements ITestService {
 
 
 
-    @Override
-    public double getTestSuccessRate(Long testId) {
-        return 0;
-    }
 
-    @Override
-    public byte[] exportTestResultsToExcel(Long testId) {
-        return new byte[0];
-    }
 
 
 }
