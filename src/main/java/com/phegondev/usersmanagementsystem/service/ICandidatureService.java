@@ -13,6 +13,7 @@ public interface ICandidatureService {
     void removeCandidature(Long candidatureId);
     Candidature modifyCandidature(Candidature candidature);
 
-    // 📌 Ajout de la méthode pour générer un PDF
     byte[] generateCandidaturePdf() throws IOException;
+
+    void sendConfirmationEmail(String email);
 }

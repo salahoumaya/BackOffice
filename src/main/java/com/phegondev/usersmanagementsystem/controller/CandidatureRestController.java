@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,7 +54,7 @@ public class CandidatureRestController {
         return candidatureService.modifyCandidature(candidature);
     }
 
-    // ✅ Nouvelle méthode pour télécharger le PDF
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/download-pdf")
     public ResponseEntity<byte[]> downloadPdf() throws IOException {
@@ -64,4 +65,21 @@ public class CandidatureRestController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfData);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/send-confirmation-email")
+    public ResponseEntity<String> sendConfirmationEmail(@RequestParam String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'email ne peut pas être vide.");
+        }
+
+        try {
+            candidatureService.sendConfirmationEmail(email);
+            return ResponseEntity.ok("Email de confirmation envoyé à " + email);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'envoi de l'email : " + e.getMessage());
+        }
+    }
+
 }
