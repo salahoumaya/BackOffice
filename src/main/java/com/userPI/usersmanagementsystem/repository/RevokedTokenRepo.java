@@ -1,6 +1,6 @@
 package com.userPI.usersmanagementsystem.repository;
 
-import com.phegondev.usersmanagementsystem.entity.RevokedToken;
+import com.userPI.usersmanagementsystem.entity.RevokedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

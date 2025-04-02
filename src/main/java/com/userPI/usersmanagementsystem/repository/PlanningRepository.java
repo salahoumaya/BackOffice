@@ -1,6 +1,6 @@
 package com.userPI.usersmanagementsystem.repository;
 
-import com.phegondev.usersmanagementsystem.entity.Planning;
+import com.userPI.usersmanagementsystem.entity.Planning;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
