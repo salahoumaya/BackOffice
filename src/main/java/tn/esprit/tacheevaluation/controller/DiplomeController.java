@@ -36,8 +36,8 @@ public class DiplomeController {
 
     // ✅ Créer un diplôme
     @PostMapping
-    public ResponseEntity<Diplome> createDiplome(@RequestBody Diplome diplome) {
-        return new ResponseEntity<>(diplomeService.createDiplome(diplome), HttpStatus.CREATED);
+    public ResponseEntity<Diplome> createDiplome(@RequestBody Diplome diplome,@RequestParam Long idformation,@RequestParam Integer iduser) {
+        return new ResponseEntity<>(diplomeService.createDiplome(diplome,idformation,iduser), HttpStatus.CREATED);
     }
 
 

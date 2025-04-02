@@ -2,10 +2,13 @@ package tn.esprit.tacheevaluation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.tacheevaluation.dto.ReqRes;
 import tn.esprit.tacheevaluation.entity.Examen;
+import tn.esprit.tacheevaluation.entity.Formation;
 import tn.esprit.tacheevaluation.entity.OurUsers;
 import tn.esprit.tacheevaluation.entity.UserRole;
 import tn.esprit.tacheevaluation.repository.ExamenRepository;
+import tn.esprit.tacheevaluation.repository.FormationRepository;
 import tn.esprit.tacheevaluation.repository.UsersRepo;
 
 import java.nio.file.AccessDeniedException;
@@ -17,20 +20,34 @@ import java.util.stream.Collectors;
 public class ExamenService {
     @Autowired
     private ExamenRepository examenRepository;
-
+    @Autowired
+    private FormationRepository formationRepository;
     @Autowired
     private UsersRepo usersRepo;
+    public List<OurUsers> getAllUsers() {
+        return usersRepo.findAll().stream()
+                .filter(user -> UserRole.USER.equals(user.getRole())) // Assuming Role is an enum
+                .collect(Collectors.toList());
+    }
+
 
     // ✅ Voir tous les examens (ETUDIANT, ADMIN, MODERATOR)
     public List<Examen> getAllExamens() {
         return examenRepository.findAll();
     }
+    public List<Examen> getAllExamensbyFormation(Long ifformation) {
+        Formation formation = formationRepository.findById(ifformation).get();
+
+        return examenRepository.findAllByFormation(formation);
+    }
 
     // ✅ Ajouter un examen (ADMIN, MODERATOR)
-    public Examen addExamen(Examen examen, Integer userId) {
+    public Examen addExamen(Examen examen, Integer userId,Long formation) {
         OurUsers user = usersRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         examen.setCreatedBy(user);
+        Formation formation1=formationRepository.findById(formation).get();
+        examen.setFormation(formation1);
         return examenRepository.save(examen);
     }
 

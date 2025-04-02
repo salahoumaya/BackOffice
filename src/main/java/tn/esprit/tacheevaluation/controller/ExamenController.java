@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.tacheevaluation.dto.ReqRes;
 import tn.esprit.tacheevaluation.entity.Examen;
 
+import tn.esprit.tacheevaluation.entity.OurUsers;
 import tn.esprit.tacheevaluation.service.ExamenService;
 
 
@@ -28,12 +30,21 @@ public class ExamenController {
     public ResponseEntity<List<Examen>> getAllExamens() {
         return ResponseEntity.ok(examenService.getAllExamens());
     }
-
+    @GetMapping("users")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
+    public ResponseEntity<List<OurUsers>> getAlluser() {
+        return ResponseEntity.ok(examenService.getAllUsers());
+    }
+    @GetMapping("byformation")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
+    public ResponseEntity<List<Examen>> getAllExamensfor(@RequestParam Long id) {
+        return ResponseEntity.ok(examenService.getAllExamensbyFormation(id));
+    }
     //  Ajouter un examen (admin, modérateur)
-    @PostMapping("/{userId}")
+    @PostMapping("/{userId}/{idformations}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public ResponseEntity<Examen> addExamen(@PathVariable Integer userId, @RequestBody Examen examen) {
-        return ResponseEntity.ok(examenService.addExamen(examen, userId));
+    public ResponseEntity<Examen> addExamen(@PathVariable Integer userId,@PathVariable Long idformations, @RequestBody Examen examen) {
+        return ResponseEntity.ok(examenService.addExamen(examen, userId,idformations));
     }
 
     // Modifier un examen (admin, modérateur)

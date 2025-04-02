@@ -9,6 +9,7 @@ import com.itextpdf.layout.element.Paragraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.tacheevaluation.entity.Diplome;
+import tn.esprit.tacheevaluation.entity.Formation;
 import tn.esprit.tacheevaluation.entity.OurUsers;
 import tn.esprit.tacheevaluation.repository.DiplomeRepository;
 import com.itextpdf.layout.Document;
@@ -18,6 +19,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
+import tn.esprit.tacheevaluation.repository.ExamenRepository;
+import tn.esprit.tacheevaluation.repository.FormationRepository;
+import tn.esprit.tacheevaluation.repository.UsersRepo;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -33,11 +38,26 @@ import java.util.Optional;
 public class DiplomeService {
     @Autowired
     private DiplomeRepository diplomeRepository;
-
+    @Autowired
+    private ExamenRepository examenRepository;
+    @Autowired
+    private FormationRepository formationRepository;
+    @Autowired
+    private UsersRepo usersRepo;
     // ✅ Créer un diplôme
-    public Diplome createDiplome(Diplome diplome) {
+    public Diplome createDiplome(Diplome diplome,Long idformation,Integer iduser) {
+        Formation formation = formationRepository.findById(idformation)
+                .orElseThrow(() -> new RuntimeException("Formation not found"));
+
+        OurUsers user = usersRepo.findById(iduser)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        diplome.setFormation(formation);
+        diplome.setUser(user);
+        System.out.println(diplome +""+ diplome.getDateObtention());
         return diplomeRepository.save(diplome);
     }
+
 
     // ✅ Récupérer tous les diplômes
     public List<Diplome> getAllDiplomes() {

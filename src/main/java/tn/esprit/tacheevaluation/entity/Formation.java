@@ -1,9 +1,12 @@
 package tn.esprit.tacheevaluation.entity;
 
+import com.twilio.rest.numbers.v2.regulatorycompliance.bundle.Evaluation;
 import jakarta.persistence.*;
 
+import java.util.List;
 
-    @Entity
+
+@Entity
     public class Formation {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +57,12 @@ import jakarta.persistence.*;
         @Enumerated(EnumType.STRING)
         private  TypeFormation FormationT;
         private String niveau;
+
+        @OneToMany(mappedBy = "formation", cascade = CascadeType.ALL)
+        private List<Examen> examenList;
+        
+    @OneToMany(mappedBy = "formation", cascade = CascadeType.ALL)
+    private List<Diplome> diplomeList;
     }
 
 
