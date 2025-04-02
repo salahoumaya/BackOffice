@@ -1,7 +1,7 @@
 package com.userPI.usersmanagementsystem.repository;
 
-import com.phegondev.usersmanagementsystem.entity.OurUsers;
-import com.phegondev.usersmanagementsystem.entity.Training;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+import com.userPI.usersmanagementsystem.entity.Training;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

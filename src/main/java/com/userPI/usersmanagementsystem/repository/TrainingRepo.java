@@ -1,6 +1,6 @@
 package com.userPI.usersmanagementsystem.repository;
 
-import com.userPI.usersmanagementsystem.entity.SujetPfe;
+
 import com.userPI.usersmanagementsystem.entity.Training;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,6 +1,6 @@
 package com.userPI.usersmanagementsystem.repository;
 
-import com.phegondev.usersmanagementsystem.entity.Course;
+import com.userPI.usersmanagementsystem.entity.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
