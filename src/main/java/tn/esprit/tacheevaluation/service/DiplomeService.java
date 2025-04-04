@@ -6,6 +6,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.tacheevaluation.entity.Diplome;
@@ -109,6 +110,7 @@ public class DiplomeService {
 
         // 📄 Définition des chemins de fichiers
         String pdfFilePath = directoryPath + "/diplome_" + diplome.getId() + ".pdf";
+        String nom = "diplome_" + diplome.getId() + ".pdf";
         String qrCodeFilePath = directoryPath + "/qrcode_" + diplome.getId() + ".png";
 
         // 📌 Générer le QR Code (contient l'ID du diplôme et le nom de l'étudiant)
@@ -120,25 +122,42 @@ public class DiplomeService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // 🏫 Informations du diplôme
-        document.add(new Paragraph("Université XYZ"));
-        document.add(new Paragraph("DIPLÔME OFFICIEL"));
-        document.add(new Paragraph("Certifie que " + user.getName() + " a obtenu un diplôme."));
-        document.add(new Paragraph("Formation : " + diplome.getFormation().getTitre()));
-        document.add(new Paragraph("Date d'obtention : " + diplome.getDateObtention()));
+        // 🏫 Titre du diplôme (en gras et plus grand)
+        document.add(new Paragraph("Université XYZ")
+                .setFontSize(18)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER));
+        document.add(new Paragraph("DIPLÔME OFFICIEL")
+                .setFontSize(16)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER));
+        document.add(new Paragraph("\n"));
 
-        // 📸 Insérer le QR Code dans le PDF
+        // 📜 Corps du diplôme
+        document.add(new Paragraph("Certifie que " + user.getName() + " a obtenu un diplôme.")
+                .setFontSize(14)
+                .setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("Formation : " + diplome.getFormation().getTitre())
+                .setFontSize(14)
+                .setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("Date d'obtention : " + diplome.getDateObtention())
+                .setFontSize(14)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        // 📸 Insérer le QR Code dans le PDF (ajusté à une taille correcte)
         ImageData qrImageData = ImageDataFactory.create(qrCodeFilePath);
-        Image qrImage = new Image(qrImageData);
+        Image qrImage = new Image(qrImageData).scaleToFit(100, 100);  // Redimensionner à 100x100 pixels
+        qrImage.setFixedPosition(450, 60); // Positionner le QR code à un endroit précis
         document.add(qrImage);
 
         // ✅ Fermer le document
         document.close();
 
+        // 📝 Log de succès
         System.out.println("📄 Diplôme généré avec succès : " + pdfFilePath);
-
+        diplome.setPath(nom);
+        diplomeRepository.save(diplome);
         return pdfFilePath;
     }
-
 
 }

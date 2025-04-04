@@ -1,5 +1,6 @@
 package tn.esprit.tacheevaluation.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.twilio.rest.numbers.v2.regulatorycompliance.bundle.Evaluation;
 import jakarta.persistence.*;
 
@@ -57,13 +58,48 @@ import java.util.List;
         @Enumerated(EnumType.STRING)
         private  TypeFormation FormationT;
         private String niveau;
-
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(
+            name = "ourusers_formations",
+            joinColumns = @JoinColumn(name = "formation_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+        private List<OurUsers> ourUsers;
+         @JsonIgnore
         @OneToMany(mappedBy = "formation", cascade = CascadeType.ALL)
         private List<Examen> examenList;
-        
-    @OneToMany(mappedBy = "formation", cascade = CascadeType.ALL)
-    private List<Diplome> diplomeList;
+    @JsonIgnore
+        @OneToMany(mappedBy = "formation", cascade = CascadeType.ALL)
+        private List<Diplome> diplomeList;
+
+    public List<OurUsers> getOurUsers() {
+        return ourUsers;
     }
+
+    public Formation setOurUsers(List<OurUsers> ourUsers) {
+        this.ourUsers = ourUsers;
+        return this;
+    }
+
+    public List<Examen> getExamenList() {
+        return examenList;
+    }
+
+    public Formation setExamenList(List<Examen> examenList) {
+        this.examenList = examenList;
+        return this;
+    }
+
+    public List<Diplome> getDiplomeList() {
+        return diplomeList;
+    }
+
+    public Formation setDiplomeList(List<Diplome> diplomeList) {
+        this.diplomeList = diplomeList;
+        return this;
+    }
+}
 
 
 

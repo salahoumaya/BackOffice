@@ -1,5 +1,6 @@
 package tn.esprit.tacheevaluation.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,12 +31,16 @@ public class OurUsers implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.PENDING; // Par défaut, un MODERATOR est "PENDING"
 
-
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ExamenParticipant> examens;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
+    @ManyToMany(mappedBy = "ourUsers")
+    @JsonIgnore
+    private List<Formation> formations;
 
     @Override
     public String getUsername() {

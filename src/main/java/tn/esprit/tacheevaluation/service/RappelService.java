@@ -3,12 +3,15 @@ package tn.esprit.tacheevaluation.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.tacheevaluation.entity.Examen;
+import tn.esprit.tacheevaluation.entity.ExamenParticipant;
+import tn.esprit.tacheevaluation.entity.OurUsers;
 import tn.esprit.tacheevaluation.repository.ExamenRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Service
 public class RappelService {
 
@@ -18,26 +21,27 @@ public class RappelService {
     @Autowired
     private NotificationService notificationService;
 
-    // Planification de l'envoi des emails chaque jour à 8h du matin
-    @Scheduled(cron = "0 0 8 * * ?")
-    public void envoyerRappelExamen() {
-        List<Examen> examens = examenRepository.findAll();
-        LocalDateTime maintenant = LocalDateTime.now();
+    @Transactional
+   // @Scheduled(cron = "* 0/1 * * * ?")
+    public void envoyerRappelExamens() {
+        LocalDate dateCible = LocalDate.now().plusDays(2);
+        List<Examen> examens = examenRepository.findByDate(dateCible);
+
+        System.out.println(examens.size() + " examens trouvés pour " + dateCible);
 
         for (Examen examen : examens) {
-            LocalDateTime dateExamen = examen.getDate();
+            examen.getParticipants().size();
 
-            // Si l'examen est prévu pour demain, on envoie un rappel
-            if (dateExamen.minusDays(1).toLocalDate().equals(maintenant.toLocalDate())) {
-                examen.getParticipants().forEach(etudiant -> {
-                    String email = etudiant.getEmail();
-                    String sujet = "📌 Rappel d'Examen";
-                    String message = "Bonjour " + etudiant.getName() +
-                            ", votre examen \"" + examen.getTitre() +
-                            "\" est prévu demain à " + dateExamen.getHour() + "h.";
+            for (ExamenParticipant user : examen.getParticipants()) {
+                String email = user.getUser().getEmail();
+                String sujet = "📅 Rappel d'Examen - " + examen.getTitre();
+                String message = "Bonjour " + user.getUser().getName() + ",\n\n"
+                        + "Ceci est un rappel que votre examen '" + examen.getTitre()
+                        + "' est prévu le " + examen.getDate() + ".\n\n"
+                        + "Bonne chance ! 📚\n\n"
+                        + "Cordialement,\nL'équipe de gestion des examens.";
 
-                    notificationService.envoyerEmail(email, sujet, message);
-                });
+                notificationService.envoyerEmail(email, sujet, message);
             }
         }
     }

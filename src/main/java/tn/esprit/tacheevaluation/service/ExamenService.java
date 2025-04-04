@@ -2,18 +2,13 @@ package tn.esprit.tacheevaluation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tn.esprit.tacheevaluation.dto.ReqRes;
-import tn.esprit.tacheevaluation.entity.Examen;
-import tn.esprit.tacheevaluation.entity.Formation;
-import tn.esprit.tacheevaluation.entity.OurUsers;
-import tn.esprit.tacheevaluation.entity.UserRole;
+import tn.esprit.tacheevaluation.entity.*;
+import tn.esprit.tacheevaluation.repository.ExamenParticipantRepository;
 import tn.esprit.tacheevaluation.repository.ExamenRepository;
 import tn.esprit.tacheevaluation.repository.FormationRepository;
 import tn.esprit.tacheevaluation.repository.UsersRepo;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,10 +37,8 @@ public class ExamenService {
     }
 
     // ✅ Ajouter un examen (ADMIN, MODERATOR)
-    public Examen addExamen(Examen examen, Integer userId,Long formation) {
-        OurUsers user = usersRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        examen.setCreatedBy(user);
+    public Examen addExamen(Examen examen,Long formation) {
+
         Formation formation1=formationRepository.findById(formation).get();
         examen.setFormation(formation1);
         return examenRepository.save(examen);
@@ -57,6 +50,8 @@ public class ExamenService {
             examen.setTitre(examenDetails.getTitre());
             examen.setDate(examenDetails.getDate());
             examen.setDuree(examenDetails.getDuree());
+            examen.setExamenT(examenDetails.getExamenT());
+            examen.setSession(examenDetails.getSession());
             return examenRepository.save(examen);
         }).orElseThrow(() -> new RuntimeException("Examen non trouvé"));
     }
@@ -72,34 +67,135 @@ public class ExamenService {
     }
 
 
-    public List<String> getParticipantsByExamen(Long examenId) {
+    public List<ExamenParticipant> getParticipantsByExamen(Long examenId) {
         Examen examen = examenRepository.findById(examenId)
                 .orElseThrow(() -> new RuntimeException("Examen non trouvé"));
 
-        return examen.getParticipants().stream()
-                .map(user -> "Nom: " + user.getName() + ", Email: " + user.getEmail())
-                .collect(Collectors.toList());
+        return examen.getParticipants();
     }
+    @Autowired
+    private ExamenParticipantRepository examenParticipantRepository;
 
-    public String participerExamen(Long examenId, Integer userId) {
-        Examen examen = examenRepository.findById(examenId)
-                .orElseThrow(() -> new RuntimeException("Examen non trouvé"));
+    public String assignUserToExamen(Long examenId, Integer userId) {
+        Optional<Examen> examenOpt = examenRepository.findById(examenId);
+        Optional<OurUsers> userOpt = usersRepo.findById(userId);
 
-        OurUsers etudiant = usersRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+        if (examenOpt.isPresent() && userOpt.isPresent()) {
+            Examen examen = examenOpt.get();
+            OurUsers user = userOpt.get();
 
-        // Vérifie si l'étudiant est déjà inscrit
-        if (examen.getParticipants().contains(etudiant)) {
-            return "Tu es déjà inscrit à l'examen : " + examen.getTitre() + " (ID: " + examen.getId() + ")";
+            ExamenParticipant participant = new ExamenParticipant();
+            participant.setExamen(examen);
+            participant.setUser(user);
+            participant.setNote(0.0);
+            participant.setMoyenne(0.0);
+
+            examenParticipantRepository.save(participant);
+            return "Utilisateur affecté à l'examen avec succès.";
+        } else {
+            return "Examen ou utilisateur non trouvé.";
+        }
+    }
+    public String updateUserToExamen(Long id, Double note) {
+        ExamenParticipant participant = examenParticipantRepository.findById(id).get();
+
+        if (participant != null) {
+            participant.setNote(note);
+
+            examenParticipantRepository.save(participant);
+            return "Note affecté à l'examen avec succès.";
+        } else {
+            return "Note ou utilisateur non trouvé.";
+        }
+    }
+    public List<ExamenParticipant> getMoyenne(Integer userId){
+        OurUsers ourUsers = usersRepo.findById(userId).get();
+       return  examenParticipantRepository.findByUser(ourUsers);
+    }
+    public String calculerEtEnregistrerMoyenneParUtilisateur(Long formationId) {
+        Formation formation = formationRepository.findById(formationId)
+                .orElseThrow(() -> new RuntimeException("Formation non trouvée"));
+
+        List<Examen> examenList = examenRepository.findAllByFormation(formation);
+
+        List<ExamenParticipant> allParticipants = examenParticipantRepository.findAll()
+                .stream()
+                .filter(p -> examenList.contains(p.getExamen()))
+                .collect(Collectors.toList());
+
+        if (allParticipants.isEmpty()) {
+            return "Aucune note trouvée pour cette formation.";
         }
 
-        // Ajouter l'étudiant à l'examen
-        examen.getParticipants().add(etudiant);
-        examenRepository.save(examen);
+        Map<Integer, List<Double>> notesParUtilisateur = new HashMap<>();
 
-        return "Tu es inscrit à l'examen : " + examen.getTitre() + " (ID: " + examen.getId() + ")";
+        for (ExamenParticipant participant : allParticipants) {
+            if (participant.getNote() != null) {
+                Integer userId = participant.getUser().getId();
+                notesParUtilisateur
+                        .computeIfAbsent(userId, k -> new ArrayList<>())
+                        .add(participant.getNote());
+            }
+        }
+
+        for (Map.Entry<Integer, List<Double>> entry : notesParUtilisateur.entrySet()) {
+            Integer userId = entry.getKey();
+            List<Double> notes = entry.getValue();
+            double moyenne = notes.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+            for (ExamenParticipant participant : allParticipants) {
+                if (participant.getUser().getId().equals(userId)) {
+                    participant.setMoyenne(moyenne);
+                    examenParticipantRepository.save(participant);
+                }
+            }
+        }
+
+        return "Moyennes calculées et enregistrées avec succès.";
     }
 
+
+//    public Map<Integer, Double> calculerMoyenneParUtilisateur(Long formationId) {
+//        Formation formation = formationRepository.findById(formationId)
+//                .orElseThrow(() -> new RuntimeException("Formation non trouvée"));
+//
+//        List<Examen> examenList = examenRepository.findAllByFormation(formation);
+//
+//        List<ExamenParticipant> allParticipants = examenParticipantRepository.findAll()
+//                .stream()
+//                .filter(p -> examenList.contains(p.getExamen()))
+//                .collect(Collectors.toList());
+//        if (allParticipants.isEmpty()) {
+//            throw new RuntimeException("Aucune note trouvée pour cette formation.");
+//        }
+//        Map<Integer, List<Double>> notesParUtilisateur = new HashMap<>();
+//
+//        for (ExamenParticipant participant : allParticipants) {
+//            if (participant.getNote() != null) {
+//                Integer userId = participant.getUser().getId();
+//                notesParUtilisateur
+//                        .computeIfAbsent(userId, k -> new ArrayList<>())
+//                        .add(participant.getNote());
+//            }
+//        }
+//        Map<Integer, Double> moyennesParUtilisateur = new HashMap<>();
+//
+//        for (Map.Entry<Integer, List<Double>> entry : notesParUtilisateur.entrySet()) {
+//            Integer userId = entry.getKey();
+//            List<Double> notes = entry.getValue();
+//            double moyenne = notes.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+//            moyennesParUtilisateur.put(userId, moyenne);
+//        }
+//        return moyennesParUtilisateur;
+//    }
+
+
+
+    public List<ExamenParticipant> getallexamen(Integer id) {
+        OurUsers ourUsers = usersRepo.findById(id).get();
+
+        return ourUsers.getExamens();
+    }
 
 
 

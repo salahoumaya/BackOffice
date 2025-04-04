@@ -46,8 +46,14 @@ public class FormationController {
     public ResponseEntity<Formation> updateFormation(@PathVariable Long id, @RequestBody Formation formation) {
         return ResponseEntity.ok(formationService.updateFormation(id, formation));
     }
-
-
+    @PostMapping("/{formationId}/assign/{userId}")
+    public String assignUserToFormation(@PathVariable Long formationId, @PathVariable Integer userId) {
+        return formationService.assignUserToFormation(userId, formationId);
+    }
+    @GetMapping("/buuser/{id}")
+    public ResponseEntity<List<Formation>> getbuuser(@PathVariable Integer id) {
+        return ResponseEntity.ok(formationService.getFormationsusers(id));
+    }
 
 
 

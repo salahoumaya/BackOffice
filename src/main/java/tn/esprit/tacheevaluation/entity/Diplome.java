@@ -1,18 +1,24 @@
 package tn.esprit.tacheevaluation.entity;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
 
 @Entity
 public class Diplome {
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String path;
 
+    public String getPath() {
+        return path;
+    }
 
+    public Diplome setPath(String path) {
+        this.path = path;
+        return this;
+    }
 
     public LocalDate getDateObtention() {
         return dateObtention;

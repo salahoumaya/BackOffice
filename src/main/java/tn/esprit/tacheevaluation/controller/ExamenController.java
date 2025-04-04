@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.tacheevaluation.dto.ReqRes;
 import tn.esprit.tacheevaluation.entity.Examen;
 
+import tn.esprit.tacheevaluation.entity.ExamenParticipant;
 import tn.esprit.tacheevaluation.entity.OurUsers;
 import tn.esprit.tacheevaluation.service.ExamenService;
 
 
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/examens")
@@ -41,12 +43,15 @@ public class ExamenController {
         return ResponseEntity.ok(examenService.getAllExamensbyFormation(id));
     }
     //  Ajouter un examen (admin, modérateur)
-    @PostMapping("/{userId}/{idformations}")
+    @PostMapping("/{idformations}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public ResponseEntity<Examen> addExamen(@PathVariable Integer userId,@PathVariable Long idformations, @RequestBody Examen examen) {
-        return ResponseEntity.ok(examenService.addExamen(examen, userId,idformations));
+    public ResponseEntity<Examen> addExamen(@PathVariable Long idformations, @RequestBody Examen examen) {
+        return ResponseEntity.ok(examenService.addExamen(examen,idformations));
     }
-
+    @GetMapping("/get/{id}")
+    public ResponseEntity<List<ExamenParticipant>> getmoyenne(@PathVariable Integer id) {
+        return ResponseEntity.ok(examenService.getMoyenne(id));
+    }
     // Modifier un examen (admin, modérateur)
     @PutMapping("/{id}") //id examen
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -63,16 +68,32 @@ public class ExamenController {
     }
 
 
-    @PostMapping("/{examenId}/participer/{userId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> participerExamen(@PathVariable Long examenId, @PathVariable Integer userId) {
-        String message = examenService.participerExamen(examenId, userId);
-        return ResponseEntity.ok(message);
+//    @PostMapping("/{examenId}/participer/{userId}")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<String> participerExamen(@PathVariable Long examenId, @PathVariable Integer userId) {
+//        String message = examenService.participerExamen(examenId, userId);
+//        return ResponseEntity.ok(message);
+//    }
+    @GetMapping("/buuser/{id}")
+    public ResponseEntity<List<ExamenParticipant>> getbuuser(@PathVariable Integer id) {
+        return ResponseEntity.ok(examenService.getallexamen(id));
+    }
+    @PostMapping("/{examenId}/assign/{userId}")
+    public String assignUserToExamen(@PathVariable Long examenId, @PathVariable Integer userId) {
+        return examenService.assignUserToExamen(examenId, userId);
+    }
+    @PostMapping("/{id}/calcul")
+    public String calculerMoyenneFormation(@PathVariable Long id) {
+        return examenService.calculerEtEnregistrerMoyenneParUtilisateur(id);
+    }
+    @PostMapping("/{examenId}/note/{userId}")
+    public String addnote(@PathVariable Long examenId, @PathVariable Double userId) {
+        return examenService.updateUserToExamen(examenId, userId);
     }
     @GetMapping("/{examenId}/participants")
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public ResponseEntity<List<String>> getParticipantsByExamen(@PathVariable Long examenId) {
-        List<String> participants = examenService.getParticipantsByExamen(examenId);
+    public ResponseEntity<List<ExamenParticipant>> getParticipantsByExamen(@PathVariable Long examenId) {
+        List<ExamenParticipant> participants = examenService.getParticipantsByExamen(examenId);
         return ResponseEntity.ok(participants);
     }
 
