@@ -39,6 +39,8 @@ public class Planning {
     @OneToMany (cascade = CascadeType.ALL)
     private List<PlanningDay> planningDays;
 
+    private String title;
+
     @ManyToOne
     @JsonIgnore
     private Training training;

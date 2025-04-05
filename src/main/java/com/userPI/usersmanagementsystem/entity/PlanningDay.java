@@ -32,7 +32,6 @@ public class PlanningDay {
     private LocalTime startTime;
     @NotNull(message = "Start time is required")
     private LocalTime endTime;
-    @Size(min = 5, max = 150, message = "Description must be between 5 and 150 characters")
     private String description;
 
     @Enumerated(EnumType.STRING)
