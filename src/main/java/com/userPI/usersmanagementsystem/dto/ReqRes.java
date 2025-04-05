@@ -45,12 +45,12 @@ public class ReqRes {
     @Column(columnDefinition = "LONGTEXT")
     private String image;
 
-    @Positive(message = "Le numéro de téléphone doit être un nombre positif")
-    @Min(value = 100000000, message = "Le numéro de téléphone doit contenir au moins 9 chiffres")
+   // @Positive(message = "Le numéro de téléphone doit être un nombre positif")
+    //@Min(value = 100000000, message = "Le numéro de téléphone doit contenir au moins 9 chiffres")
     private String numTel;
 
-    @Positive(message = "Le CIN doit être un nombre positif")
-    @Min(value = 10000000, message = "Le CIN doit contenir au moins 8 chiffres")
+   // @Positive(message = "Le CIN doit être un nombre positif")
+    //@Min(value = 10000000, message = "Le CIN doit contenir au moins 8 chiffres")
     private long CIN;
 
     private OurUsers ourUsers;
