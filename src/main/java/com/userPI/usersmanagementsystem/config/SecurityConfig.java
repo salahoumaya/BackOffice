@@ -40,6 +40,9 @@ public class SecurityConfig {
                         .requestMatchers("/user/**").hasRole(UserRole.USER.name())
                         .requestMatchers("/moderator/**").hasRole(UserRole.MODERATOR.name())
                         .requestMatchers("/adminuser/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name())
+                        .requestMatchers("/public-training/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name(),UserRole.MODERATOR.name())
+                        .requestMatchers("/auth/reset-password").permitAll()
+
 
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
