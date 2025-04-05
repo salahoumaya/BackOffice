@@ -2,6 +2,7 @@ package com.userPI.usersmanagementsystem.service;
 
 
 //import com.userPI.usersmanagementsystem.dto.dashModerator;
+import com.userPI.usersmanagementsystem.dto.dashModerator;
 import com.userPI.usersmanagementsystem.entity.Training;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface ITrainingService {
     public Training addUserToTraining(int trainingId);
     List<Training> getTrainingsForAuthenticatedTrainer();
     List<Training> getTrainingsForAuthenticatedStudent();
-    //dashModerator getDashboard();
+    dashModerator getDashboard();
 
 
 

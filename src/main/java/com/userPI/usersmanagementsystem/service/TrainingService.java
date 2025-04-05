@@ -1,7 +1,7 @@
 package com.userPI.usersmanagementsystem.service;
 
-//import com.userPI.usersmanagementsystem.dto.dashModerator;
-//import com.userPI.usersmanagementsystem.dto.myStudentsDto;
+import com.userPI.usersmanagementsystem.dto.dashModerator;
+import com.userPI.usersmanagementsystem.dto.myStudentsDto;
 import com.userPI.usersmanagementsystem.entity.Course;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.entity.Training;
@@ -162,41 +162,41 @@ public class TrainingService implements ITrainingService {
         return trainingRepository.findForStudent(student.getId());
     }
 
-//    @Override
-//    public dashModerator getDashboard() {
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        String username;
-//
-//        if (principal instanceof UserDetails) {
-//            username = ((UserDetails) principal).getUsername();
-//        } else {
-//            throw new RuntimeException("Unauthorized request");
-//        }
-//
-//        OurUsers trainer = userRepository.findByEmail(username)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        dashModerator myDashboard = new dashModerator();
-//        List<Training> myTrainings = trainingRepository.findByTrainer(trainer);
-//        myDashboard.setTotalTrainings(myTrainings.size());
-//        int totalCourses =0;
-//        int totalStudents =0;
-//        List<myStudentsDto> myStudentsDtos = new ArrayList<>();
-//
-//        for (int i = 0; i < trainingRepository.findByTrainer(trainer).size(); i++) {
-//            totalCourses+=myTrainings.get(i).getCourses().size();
-//            totalStudents+=myTrainings.get(i).getUsers().size();
-//            for (int j = 0; j < myTrainings.get(i).getUsers().size(); j++) {
-//                LocalDateTime subscriptionDate = myTrainings.get(i).getSubscriptionDates().get(myTrainings.get(i).getUsers().get(j).getId());
-//                myStudentsDto student = new myStudentsDto(myTrainings.get(i).getUsers().get(j).getName(),myTrainings.get(i).getTitle(),subscriptionDate);
-//                myStudentsDtos.add(student);
-//            }
-//        }
-//        myDashboard.setTotalCourses(totalCourses);
-//        myDashboard.setTotalStudents(totalStudents);
-//        myDashboard.setMyStudents(myStudentsDtos);
-//        return myDashboard;
-//    }
+    @Override
+    public dashModerator getDashboard() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            throw new RuntimeException("Unauthorized request");
+        }
+
+        OurUsers trainer = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        dashModerator myDashboard = new dashModerator();
+        List<Training> myTrainings = trainingRepository.findByTrainer(trainer);
+        myDashboard.setTotalTrainings(myTrainings.size());
+        int totalCourses =0;
+        int totalStudents =0;
+        List<myStudentsDto> myStudentsDtos = new ArrayList<>();
+
+        for (int i = 0; i < trainingRepository.findByTrainer(trainer).size(); i++) {
+            totalCourses+=myTrainings.get(i).getCourses().size();
+            totalStudents+=myTrainings.get(i).getUsers().size();
+            for (int j = 0; j < myTrainings.get(i).getUsers().size(); j++) {
+                LocalDateTime subscriptionDate = myTrainings.get(i).getSubscriptionDates().get(myTrainings.get(i).getUsers().get(j).getId());
+                myStudentsDto student = new myStudentsDto(myTrainings.get(i).getUsers().get(j).getName(),myTrainings.get(i).getTitle(),subscriptionDate);
+                myStudentsDtos.add(student);
+            }
+        }
+        myDashboard.setTotalCourses(totalCourses);
+        myDashboard.setTotalStudents(totalStudents);
+        myDashboard.setMyStudents(myStudentsDtos);
+        return myDashboard;
+    }
 
 
 }
