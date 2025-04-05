@@ -22,10 +22,10 @@ public class Course implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank(message = "Title cannot be empty")
-    @Size(min = 3, max = 50, message = "Title must be between 3 and 100 characters")
+    @Size(min = 2, max = 50, message = "Title must be between 2 and 100 characters")
     private String title;
     @NotBlank(message = "Content cannot be empty")
-    @Size(min = 100, max = 1000, message = "Content must be between 10 and 500 characters")
+   @Size(min = 30, max = 1000, message = "Content must be between 10 and 500 characters")
     private String content;
 
     @JsonIgnore
