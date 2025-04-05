@@ -1,5 +1,6 @@
 package com.userPI.usersmanagementsystem.controller;
 //import com.userPI.usersmanagementsystem.dto.dashModerator;
+import com.userPI.usersmanagementsystem.dto.dashModerator;
 import com.userPI.usersmanagementsystem.entity.Training;
 import com.userPI.usersmanagementsystem.service.ITrainingService;
 import lombok.AllArgsConstructor;
@@ -68,8 +69,8 @@ public class TrainingController {
         return trainingService.getTrainingsForAuthenticatedStudent();
     }
 
-//    @GetMapping("/moderator/get-dashboard")
-//    public dashModerator getDashboard() {
-//        return trainingService.getDashboard();
-//    }
+    @GetMapping("/moderator/get-dashboard")
+    public dashModerator getDashboard() {
+        return trainingService.getDashboard();
+    }
 }
