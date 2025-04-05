@@ -23,7 +23,7 @@ public class OurUsers implements UserDetails {
     private String city;
     @Column(columnDefinition = "LONGTEXT")
     private String image;
-    private Long numTel;
+    private String numTel;
     private Long CIN;
     @Enumerated(EnumType.STRING)
     private UserRole role;
