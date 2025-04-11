@@ -56,19 +56,34 @@ public class CandidatureServiceImpl implements ICandidatureService {
         // Sauvegarde de la candidature
         Candidature savedCandidature = candidatureRepository.save(c);
 
+<<<<<<< HEAD
         // Vérification et envoi de l'email
         if (c.getEmail() != null && !c.getEmail().isEmpty()) {
             sendConfirmationEmail(c.getEmail());
+=======
+        // Vérification de nbr_exp avant d'envoyer l'email
+        if (c.getEmail() != null && !c.getEmail().isEmpty() && c.getNbr_exp() > 3) {
+            sendConfirmationEmail(c.getEmail()); // Envoi à l'email du candidat
+>>>>>>> TestlevelManagement
         }
 
         return savedCandidature;
     }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> TestlevelManagement
     @Override
     public void sendConfirmationEmail(String email) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+<<<<<<< HEAD
             message.setTo(email);
+=======
+            message.setTo(email); // Utilisation de l'email dynamique
+>>>>>>> TestlevelManagement
             message.setSubject("Entretien Programmé");
             message.setText("Bonjour, \n\nNous vous informons qu'un entretien est programmé pour vous. \n\nCordialement,\nL'équipe de recrutement.");
             mailSender.send(message);
@@ -78,6 +93,10 @@ public class CandidatureServiceImpl implements ICandidatureService {
     }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> TestlevelManagement
     @Override
     public void removeCandidature(Long candidatureId) {
         candidatureRepository.deleteById(candidatureId);

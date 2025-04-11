@@ -12,10 +12,17 @@ import java.util.Optional;
 
 
 public interface TestSubmissionRepository extends JpaRepository<TestSubmission, Long> {
+<<<<<<< HEAD
    //pour durée du test
         Optional<TestSubmission> findByUserAndTest(OurUsers user, Test test);
         //pour recupere tous les test
          List<TestSubmission> findByTest(Test test);
+=======
+    //pour durée du test
+    Optional<TestSubmission> findByUserAndTest(OurUsers user, Test test);
+    //pour recupere tous les test
+    List<TestSubmission> findByTest(Test test);
+>>>>>>> TestlevelManagement
 
     //Trouver toutes les soumissions par ID de test
     List<TestSubmission> findByTestId(Long testId);
@@ -40,5 +47,12 @@ public interface TestSubmissionRepository extends JpaRepository<TestSubmission, 
     Optional<TestSubmission> findLatestSubmittedByUserAndTest(@Param("user") OurUsers user, @Param("test") Test test);
 
 
+<<<<<<< HEAD
+=======
+    Optional<TestSubmission> findTopByUserOrderBySubmittedAtDesc(OurUsers user);
+
+
+
+>>>>>>> TestlevelManagement
 
 }

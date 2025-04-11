@@ -1,5 +1,9 @@
 package com.userPI.usersmanagementsystem.dto.levelTest;
 
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,6 +18,10 @@ public class TestDTO {
     private String title;
     private String description;
     private LocalDateTime scheduledAt;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+
     private String image;
 
 

@@ -2,18 +2,38 @@ package com.userPI.usersmanagementsystem.controller.user;
 
 import com.userPI.usersmanagementsystem.dto.ReqRes;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+
+
+import com.userPI.usersmanagementsystem.entity.user.UserFeedback;
+import com.userPI.usersmanagementsystem.repository.UsersRepo;
+import com.userPI.usersmanagementsystem.service.user.UserFeedbackService;
+
 import com.userPI.usersmanagementsystem.service.user.UsersManagementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserManagementController {
     @Autowired
     private UsersManagementService usersManagementService;
+
+    @Autowired
+    UsersRepo usersRepo;
+    @Autowired
+    UserFeedbackService userFeedbackService;
+
+
+
 
     @PostMapping("/auth/register")
     public ResponseEntity<ReqRes> register(@Valid @RequestBody ReqRes reg) {
@@ -71,6 +91,21 @@ public class UserManagementController {
     public ResponseEntity<ReqRes> approveModerator(@PathVariable Integer userId, @RequestParam boolean approve) {
         return ResponseEntity.ok(usersManagementService.approveModerator(userId, approve));
     }
+
+
+
+    @PostMapping("/user/feedback")
+    public ResponseEntity<UserFeedback> addUserFeedback(@RequestParam Integer trainingId, @RequestParam Integer rating,
+                                                        @AuthenticationPrincipal UserDetails userDetails) {
+        OurUsers user = usersRepo.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        // Ajoute user.getUser().getId() comme premier paramètre
+        UserFeedback feedback = userFeedbackService.addUserFeedback(user.getId(), trainingId, rating);
+
+        return ResponseEntity.ok(feedback);
+    }
+
+
 
 
 

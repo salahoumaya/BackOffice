@@ -4,8 +4,15 @@ import com.userPI.usersmanagementsystem.dto.levelTest.TestDTO;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestExplanationDTO;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestResultDto;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestSubmissionDTO;
+<<<<<<< HEAD
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.UsersRepo;
+=======
+import com.userPI.usersmanagementsystem.entity.levelTest.TestSubmission;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+import com.userPI.usersmanagementsystem.repository.UsersRepo;
+import com.userPI.usersmanagementsystem.repository.levelTeset.TestSubmissionRepository;
+>>>>>>> TestlevelManagement
 import com.userPI.usersmanagementsystem.service.TesLevel.ITestService;
 import com.userPI.usersmanagementsystem.service.TesLevel.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +38,11 @@ public class UserTestController {
     ITestService testService;
     @Autowired
     UsersRepo userRepository;
+<<<<<<< HEAD
+=======
+    @Autowired
+    TestSubmissionRepository testSubmissionRepository;
+>>>>>>> TestlevelManagement
 
 
     @GetMapping
@@ -68,6 +80,7 @@ public class UserTestController {
 
     // TestController.java
 
+
     @PostMapping("/test/explain")
     public ResponseEntity<Map<String, String>> getLLMExplanation(@RequestBody TestExplanationDTO dto) {
         try {
@@ -93,6 +106,47 @@ public class UserTestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+
+    @GetMapping("/recommendation-from-last-score")
+    public ResponseEntity<?> recommendFromLastSubmission(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            // 1. Récupérer l'utilisateur
+            OurUsers user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+            // 2. Récupérer la dernière soumission avec score
+            TestSubmission latestSubmission = testSubmissionRepository.findTopByUserOrderBySubmittedAtDesc(user)
+                    .orElseThrow(() -> new RuntimeException("Aucune soumission trouvée pour cet utilisateur"));
+
+            float score = (float) latestSubmission.getScore();
+
+            // 3. Appel à FastAPI
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> requestBody = Map.of("quiz_score", score);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    "http://localhost:8001/recommend/new-user",
+                    entity,
+                    Map.class
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "score", score,
+                    "recommendations", response.getBody()
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur : " + e.getMessage()));
+        }
+    }
+
+
 
 
 
