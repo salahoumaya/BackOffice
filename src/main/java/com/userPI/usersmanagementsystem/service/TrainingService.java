@@ -2,6 +2,7 @@ package com.userPI.usersmanagementsystem.service;
 
 import com.userPI.usersmanagementsystem.dto.dashModerator;
 import com.userPI.usersmanagementsystem.dto.myStudentsDto;
+import com.userPI.usersmanagementsystem.dto.trainingUsersDto;
 import com.userPI.usersmanagementsystem.entity.Course;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.entity.Training;
@@ -183,7 +184,7 @@ public class TrainingService implements ITrainingService {
         int totalCourses =0;
         int totalStudents =0;
         List<myStudentsDto> myStudentsDtos = new ArrayList<>();
-
+        List<trainingUsersDto> myTrainingUsersDtos = new ArrayList<>();
         for (int i = 0; i < trainingRepository.findByTrainer(trainer).size(); i++) {
             totalCourses+=myTrainings.get(i).getCourses().size();
             totalStudents+=myTrainings.get(i).getUsers().size();
@@ -192,10 +193,22 @@ public class TrainingService implements ITrainingService {
                 myStudentsDto student = new myStudentsDto(myTrainings.get(i).getUsers().get(j).getName(),myTrainings.get(i).getTitle(),subscriptionDate);
                 myStudentsDtos.add(student);
             }
+
+            trainingUsersDto trainingUsers = new trainingUsersDto();
+            trainingUsers.setFormation(myTrainings.get(i).getTitle());
+            if (myTrainings.get(i).getMaxStudents()!= 0) {
+                trainingUsers.setPourcentage(((float) myTrainings.get(i).getUsers().size() / myTrainings.get(i).getMaxStudents()) * 100);
+            }
+            else {
+                trainingUsers.setPourcentage(0);
+            }
+            myTrainingUsersDtos.add(trainingUsers);
         }
+
         myDashboard.setTotalCourses(totalCourses);
         myDashboard.setTotalStudents(totalStudents);
         myDashboard.setMyStudents(myStudentsDtos);
+        myDashboard.setTrainingsNumber(myTrainingUsersDtos);
         return myDashboard;
     }
     public List<Training> getFormationsusers(Integer id) {

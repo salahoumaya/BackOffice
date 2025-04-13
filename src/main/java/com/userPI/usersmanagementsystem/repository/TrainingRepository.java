@@ -12,7 +12,16 @@ import java.util.List;
 @Repository
 public interface TrainingRepository extends JpaRepository<Training, Integer> {
     List<Training> findByTrainer(OurUsers trainer);
-    @Query(value = "SELECT * FROM Training t WHERE t.id NOT IN (SELECT training_id FROM training_users WHERE users_id = :studentId)", nativeQuery = true)
+    @Query(value = """
+    SELECT * FROM Training t 
+    WHERE t.id NOT IN (
+        SELECT training_id FROM training_users WHERE users_id = :studentId
+    )
+    AND (
+        SELECT COUNT(*) FROM training_users tu WHERE tu.training_id = t.id
+    ) < t.max_students
+    """, nativeQuery = true)
     List<Training> findForStudent(@Param("studentId") int studentId);
+
 
 }
