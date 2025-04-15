@@ -4,8 +4,13 @@ import com.userPI.usersmanagementsystem.entity.*;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +37,22 @@ public class ReclamationService implements IReclamationService {
 
     @Autowired
     private ReclamationRuleEngine ruleEngine;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public String detectSentiment(String text) {
+        String url = "http://localhost:8010/analyze-sentiment";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> payload = Map.of("text", text);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+        return response.getBody().get("label").toString();
+    }
+
 
     public Reclamation createReclamation(OurUsers user, String type, Long eventId, Integer trainingId, Integer sujetpfeId, String title, String description) {
         Reclamation reclamation = new Reclamation();
@@ -67,11 +88,24 @@ public class ReclamationService implements IReclamationService {
                 throw new IllegalArgumentException("Type de réclamation inconnu: " + type);
         }
 
-        // 💡 Appliquer la règle de traitement automatique
+
+        String sentiment = detectSentiment(description);
+        System.out.println("Sentiment détecté: " + sentiment);
+
+        reclamation.setSentiment(sentiment);
+
+
         String autoStatus = ruleEngine.determineStatusFromRules(type, description);
+
+
+        if ("OPEN".equals(autoStatus) && "NEGATIVE".equalsIgnoreCase(sentiment)) {
+            autoStatus = "IN_PROGRESS"; // ou "PRIORITAIRE" si tu préfères
+        }
+
+
         reclamation.setStatus(autoStatus);
-        if (!"OPEN".equals(autoStatus)) {
-            reclamation.setAutoProcessed(true); }
+        reclamation.setAutoProcessed(!"OPEN".equals(autoStatus));
+
 
 
         return reclamationRepository.save(reclamation);

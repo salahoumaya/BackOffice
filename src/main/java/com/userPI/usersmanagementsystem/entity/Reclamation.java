@@ -47,6 +47,9 @@ public class Reclamation {
     @Column(name = "auto_processed")
     private Boolean autoProcessed = false;
 
+    @Column(name = "sentiment")
+    private String sentiment;
+
 
 
     @ManyToOne
