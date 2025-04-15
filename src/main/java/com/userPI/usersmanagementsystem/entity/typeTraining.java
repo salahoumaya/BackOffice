@@ -2,5 +2,5 @@ package com.userPI.usersmanagementsystem.entity;
 
 public enum typeTraining {
 ONLINE,
-    VIDEO
+    Video
 }

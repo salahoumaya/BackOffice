@@ -13,4 +13,5 @@ public class dashModerator {
         private int totalCourses;
         private int totalStudents;
         private List<myStudentsDto> myStudents;
+        private List<trainingUsersDto> trainingsNumber;
 }
