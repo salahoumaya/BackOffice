@@ -116,18 +116,11 @@ public class UserTestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
     @GetMapping("/recommend")
-    public ResponseEntity<Map<String, Object>> getRecommendationsForUser(
-            @AuthenticationPrincipal OurUsers user) {
-
-        Map<String, Object> recommendations = recommendation.getRecommendationsForUser(user.getId());
-
-
-        if (!recommendations.isEmpty()) {
-            return ResponseEntity.ok(recommendations);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<List<Map<String, Object>>> getRecommendationsForUser(@AuthenticationPrincipal OurUsers user) {
+        List<Map<String, Object>> recommendations = recommendation.getRecommendations(user.getId());
+        return ResponseEntity.ok(recommendations);
     }
 
 
