@@ -6,6 +6,7 @@ import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +45,11 @@ public interface TestSubmissionRepository extends JpaRepository<TestSubmission, 
     Optional<TestSubmission> findLatestSubmittedByUserAndTest(@Param("user") OurUsers user, @Param("test") Test test);
 
 
+    Optional<TestSubmission> findTopByUserIdOrderBySubmittedAtDesc(int userId);
 
-    Optional<TestSubmission> findTopByUserOrderBySubmittedAtDesc(OurUsers user);
+
+
+
 
 
 
