@@ -6,6 +6,8 @@ import com.userPI.usersmanagementsystem.dto.levelTest.TestResultDto;
 import com.userPI.usersmanagementsystem.dto.levelTest.TestSubmissionDTO;
 
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
+import com.userPI.usersmanagementsystem.entity.user.UserFeedback;
+import com.userPI.usersmanagementsystem.repository.UserFeedbackRepo;
 import com.userPI.usersmanagementsystem.repository.UsersRepo;
 
 import com.userPI.usersmanagementsystem.entity.levelTest.TestSubmission;
@@ -13,12 +15,14 @@ import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.UsersRepo;
 import com.userPI.usersmanagementsystem.repository.levelTeset.TestSubmissionRepository;
 
+import com.userPI.usersmanagementsystem.service.Recommendation;
 import com.userPI.usersmanagementsystem.service.TesLevel.ITestService;
 import com.userPI.usersmanagementsystem.service.TesLevel.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/tests")
@@ -38,9 +43,15 @@ public class UserTestController {
     ITestService testService;
     @Autowired
     UsersRepo userRepository;
+    @Autowired
+    Recommendation recommendation;
 
     @Autowired
     TestSubmissionRepository testSubmissionRepository;
+    @Autowired
+     UserFeedbackRepo userFeedbackRepository;
+    @Autowired
+   RestTemplate restTemplate;
 
 
 
@@ -105,49 +116,19 @@ public class UserTestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+    @GetMapping("/recommend")
+    public ResponseEntity<Map<String, Object>> getRecommendationsForUser(
+            @AuthenticationPrincipal OurUsers user) {
+
+        Map<String, Object> recommendations = recommendation.getRecommendationsForUser(user.getId());
 
 
-    @GetMapping("/recommendation-from-last-score")
-    public ResponseEntity<?> recommendFromLastSubmission(@AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            // 1. Récupérer l'utilisateur
-            OurUsers user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-
-            // 2. Récupérer la dernière soumission avec score
-            TestSubmission latestSubmission = testSubmissionRepository.findTopByUserOrderBySubmittedAtDesc(user)
-                    .orElseThrow(() -> new RuntimeException("Aucune soumission trouvée pour cet utilisateur"));
-
-            float score = (float) latestSubmission.getScore();
-
-            // 3. Appel à FastAPI
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> requestBody = Map.of("quiz_score", score);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(
-                    "http://localhost:8001/recommend/new-user",
-                    entity,
-                    Map.class
-            );
-
-            return ResponseEntity.ok(Map.of(
-                    "score", score,
-                    "recommendations", response.getBody()
-            ));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur : " + e.getMessage()));
+        if (!recommendations.isEmpty()) {
+            return ResponseEntity.ok(recommendations);
+        } else {
+            return ResponseEntity.noContent().build();
         }
     }
-
-
-
-
 
 
 
