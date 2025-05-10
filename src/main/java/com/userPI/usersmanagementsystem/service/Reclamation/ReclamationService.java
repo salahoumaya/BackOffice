@@ -4,8 +4,13 @@ import com.userPI.usersmanagementsystem.entity.*;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +38,25 @@ public class ReclamationService implements IReclamationService {
     @Autowired
     private ReclamationRuleEngine ruleEngine;
 
+
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+
+    public String detectSentiment(String text) {
+        String url = "http://localhost:8011/analyze-sentiment";
+        Map<String, String> payload = Map.of("text", text);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+        return response.getBody().get("label").toString();
+    }
+
     public Reclamation createReclamation(OurUsers user, String type, Long eventId, Integer trainingId, Integer sujetpfeId, String title, String description) {
         Reclamation reclamation = new Reclamation();
         reclamation.setUser(user);
@@ -40,7 +64,6 @@ public class ReclamationService implements IReclamationService {
         reclamation.setDescription(description);
         reclamation.setType(type.toUpperCase());
 
-        // Affecter l'entité ciblée et nom
         switch (reclamation.getType()) {
             case "EVENT":
                 if (eventId == null) throw new IllegalArgumentException("L'ID d'événement est requis");
@@ -67,15 +90,26 @@ public class ReclamationService implements IReclamationService {
                 throw new IllegalArgumentException("Type de réclamation inconnu: " + type);
         }
 
-        // 💡 Appliquer la règle de traitement automatique
+
+        String sentiment = detectSentiment(description);
+        reclamation.setSentiment(sentiment);
+
+
+        if ("NEGATIVE".equals(sentiment)) {
+            reclamation.setPriority(true);
+            reclamation.setStatus("IN_PROGRESS");
+        }
+
+
         String autoStatus = ruleEngine.determineStatusFromRules(type, description);
         reclamation.setStatus(autoStatus);
         if (!"OPEN".equals(autoStatus)) {
-            reclamation.setAutoProcessed(true); }
-
+            reclamation.setAutoProcessed(true);
+        }
 
         return reclamationRepository.save(reclamation);
     }
+
 
 
 

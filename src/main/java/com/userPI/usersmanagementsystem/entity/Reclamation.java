@@ -10,7 +10,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
@@ -29,7 +28,8 @@ public class Reclamation {
     private String description;
 
     @NotBlank
-    private String type; // EVENT, TRAINING, SUJET_PFE
+    private String type;
+
     @Column(name = "is_read")
     @NotNull
     private boolean read = false;
@@ -37,7 +37,7 @@ public class Reclamation {
     @NotBlank
     private String targetName;
 
-    private String status = "OPEN"; // OPEN, IN_PROGRESS, RESOLVED, REJECTED
+    private String status = "OPEN";
 
     private LocalDateTime creationDate = LocalDateTime.now();
 
@@ -47,7 +47,10 @@ public class Reclamation {
     @Column(name = "auto_processed")
     private Boolean autoProcessed = false;
 
+    @Column(name = "priority")
+    private Boolean priority;
 
+    private String sentiment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -65,11 +68,20 @@ public class Reclamation {
     @JoinColumn(name = "sujet_pfe_id")
     private SujetPfe sujetPfe;
 
-    // Méthode pour mettre à jour le statut
+
     public void updateStatus(String newStatus) {
         this.status = newStatus;
         if ("RESOLVED".equals(newStatus) || "REJECTED".equals(newStatus)) {
             this.resolutionDate = LocalDateTime.now();
         }
+    }
+
+
+    public boolean isPriority() {
+        return priority;
+    }
+
+    public void setPriority(boolean priority) {
+        this.priority = priority;
     }
 }

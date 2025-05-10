@@ -30,4 +30,5 @@ public class UserFeedback {
     @Column(nullable = false)
     private Integer rating;
 
+
 }

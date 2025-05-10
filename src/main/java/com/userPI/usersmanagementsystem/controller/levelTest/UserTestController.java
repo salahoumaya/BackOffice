@@ -88,7 +88,7 @@ public class UserTestController {
         return ResponseEntity.ok(testService.getResultForUser(testId, user.getId()));
     }
 
-    // TestController.java
+
 
 
     @PostMapping("/test/explain")
@@ -103,14 +103,14 @@ public class UserTestController {
 
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
-            // Construire une vraie réponse JSON
+
             Map<String, String> result = new HashMap<>();
             result.put("explanation", (String) response.getBody().get("explanation"));
 
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-            // Retourner aussi une Map pour rester en JSON
+
             Map<String, String> error = new HashMap<>();
             error.put("explanation", "❌ Erreur FastAPI : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -118,9 +118,17 @@ public class UserTestController {
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<List<Map<String, Object>>> getRecommendationsForUser(@AuthenticationPrincipal OurUsers user) {
-        List<Map<String, Object>> recommendations = recommendation.getRecommendations(user.getId());
-        return ResponseEntity.ok(recommendations);
+    public ResponseEntity<Map<String, Object>> getRecommendationsForUser(
+            @AuthenticationPrincipal OurUsers user) {
+
+        Map<String, Object> recommendations = recommendation.getRecommendationsForUser(user.getId());
+
+
+        if (!recommendations.isEmpty()) {
+            return ResponseEntity.ok(recommendations);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 
 

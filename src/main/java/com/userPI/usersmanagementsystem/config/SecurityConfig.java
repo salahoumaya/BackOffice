@@ -39,13 +39,13 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
                         .requestMatchers("/user/**").hasRole(UserRole.USER.name())
                         .requestMatchers("/moderator/**").hasRole(UserRole.MODERATOR.name())
-<<<<<<< HEAD
+
                         .requestMatchers("/adminuser/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name())
 
-=======
+
                         .requestMatchers("/adminuser/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.USER.name(),UserRole.MODERATOR.name())
                         .requestMatchers("/api/posts/**","/api/reactions/**").permitAll()
->>>>>>> 4628167b5c86a7a17fb119b4d98fa98300eb8319
+
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

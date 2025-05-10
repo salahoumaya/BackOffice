@@ -1,6 +1,7 @@
 package com.userPI.usersmanagementsystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -44,4 +45,7 @@ public class Planning {
     @ManyToOne
     @JsonIgnore
     private Training training;
+
+
+
 }

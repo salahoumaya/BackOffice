@@ -11,6 +11,9 @@ import java.util.Optional;
 public interface UserFeedbackRepo extends JpaRepository<UserFeedback, Long> {
     Optional<UserFeedback> findByUserIdAndTrainingId(Integer userId, Integer trainingId);
     List<UserFeedback> findByUserId(int userId);
+    List<UserFeedback> findByUser(OurUsers user);
+
+    Optional<UserFeedback> findTopByUserOrderByIdDesc(OurUsers user); // ou par date si dispo
 
 
 

@@ -2,13 +2,16 @@ package com.userPI.usersmanagementsystem.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.userPI.usersmanagementsystem.entity.ExamenParticipant;
+import com.userPI.usersmanagementsystem.entity.Planning;
 import com.userPI.usersmanagementsystem.entity.Training;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,8 +34,11 @@ public class OurUsers implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.PENDING; // Par défaut, un MODERATOR est "PENDING"
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @ManyToMany(mappedBy = "users")
     @JsonIgnore
@@ -72,4 +78,5 @@ public class OurUsers implements UserDetails {
         if (role == UserRole.ADMIN) return true;
         return status == UserStatus.APPROVED;
     }
+
 }

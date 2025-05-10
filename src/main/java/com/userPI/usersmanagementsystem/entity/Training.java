@@ -26,7 +26,7 @@ import java.util.Map;
 @Getter
 @Setter
 
-@ToString  // Ajout explicite si tu veux garder toString personnalisé
+@ToString
 
 public class Training {
     @Id
