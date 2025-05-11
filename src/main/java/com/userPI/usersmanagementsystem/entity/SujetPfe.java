@@ -1,6 +1,7 @@
 package com.userPI.usersmanagementsystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.userPI.usersmanagementsystem.entity.DemandeStatus;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -11,10 +12,6 @@ import java.util.List;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 public class SujetPfe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +26,10 @@ public class SujetPfe {
 
     @NotBlank(message = "La technologie est obligatoire")
     private String technologie;
+    @Column(columnDefinition = "LONGTEXT")
     private String image;
-    private String rapport;
+    @Lob
+    private byte[] rapport;
     @Enumerated(EnumType.STRING)
     private DemandeStatus demandeStatus;
 
@@ -41,8 +40,12 @@ public class SujetPfe {
     @JsonIgnore
     @OneToOne
     private OurUsers userAttribue;
-    @JsonIgnore
-    @ManyToMany()
+    @ManyToMany
+    @JoinTable(
+            name = "sujet_demandeur", // nom de la table de jointure
+            joinColumns = @JoinColumn(name = "sujet_pfe_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<OurUsers> demandeurs;
 
 

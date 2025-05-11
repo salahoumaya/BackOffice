@@ -2,11 +2,14 @@ package com.userPI.usersmanagementsystem.repository;
 
 
 import com.userPI.usersmanagementsystem.entity.SujetPfe;
+import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SujetPfeRepo extends JpaRepository<SujetPfe, Integer> {
@@ -18,5 +21,11 @@ public interface SujetPfeRepo extends JpaRepository<SujetPfe, Integer> {
 
     @Query("SELECT COUNT(s) FROM SujetPfe s")
     long countTotalSujets();
+
+    List<SujetPfe> findSujetPfeByUserAttribue_Id(Integer id);
+
+    List<SujetPfe> findAllByDemandeursContains(OurUsers users);
+    @Query("SELECT s.userAttribue FROM SujetPfe s WHERE s.id = :sujetPfeId")
+    Optional<OurUsers> findUserAttribueBySujetPfeId(@Param("sujetPfeId") Integer sujetPfeId);
 
 }

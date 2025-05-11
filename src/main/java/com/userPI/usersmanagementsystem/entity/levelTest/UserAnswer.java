@@ -16,7 +16,7 @@ public class UserAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userAnswer;
-    private boolean isCorrect; // Indique si la réponse est correcte ou non
+    private boolean isCorrect;
 
     @ManyToOne
     @JoinColumn(name = "test_submission_id", nullable = false)

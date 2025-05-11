@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class UserManagementController {
     @Autowired
@@ -57,8 +59,14 @@ public class UserManagementController {
 
     }
     @GetMapping("/admin/get-all-moderators")
-    public ResponseEntity<ReqRes> getAllModerators() {
-        return ResponseEntity.ok(usersManagementService.getAllModerators());
+    public ResponseEntity<?> getAllModerators() {
+        List<OurUsers> moderators = usersManagementService.getAllModerators();
+
+        if (moderators.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Si aucun modérateur n'est trouvé
+        }
+
+        return ResponseEntity.ok(moderators); // Retourne les modérateurs avec un status HTTP 200
     }
 
 

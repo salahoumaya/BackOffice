@@ -47,6 +47,7 @@ public class Training {
     private typeTraining typeTraning;
 
 
+    private int maxStudents;
 
     @OneToMany(mappedBy = "training", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();

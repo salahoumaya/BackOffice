@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ReservationDTO {
     private Long eventId;
     private Long userId;
-    private String contactEmail;
+
 }

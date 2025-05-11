@@ -14,15 +14,15 @@ import java.util.Optional;
 
 public interface TestSubmissionRepository extends JpaRepository<TestSubmission, Long> {
 
-   //pour durée du test
+
         Optional<TestSubmission> findByUserAndTest(OurUsers user, Test test);
-        //pour recupere tous les test
+
          List<TestSubmission> findByTest(Test test);
 
 
 
 
-    //Trouver toutes les soumissions par ID de test
+
     List<TestSubmission> findByTestId(Long testId);
 
     @Query("SELECT AVG(ts.score) FROM TestSubmission ts WHERE ts.test.id = :testId")
@@ -46,6 +46,11 @@ public interface TestSubmissionRepository extends JpaRepository<TestSubmission, 
 
 
     Optional<TestSubmission> findTopByUserIdOrderBySubmittedAtDesc(int userId);
+
+
+
+
+    Optional<TestSubmission> findTopByUserOrderBySubmittedAtDesc(OurUsers user);
 
 
 

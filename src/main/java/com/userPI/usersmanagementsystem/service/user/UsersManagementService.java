@@ -221,23 +221,9 @@ public class UsersManagementService {
             return reqRes;
         }
     }
-    public ReqRes getAllModerators() {
-        ReqRes response = new ReqRes();
-        try {
-            List<OurUsers> moderators = usersRepo.findByRole(UserRole.MODERATOR);
-            if (!moderators.isEmpty()) {
-                response.setOurUsersList(moderators);
-                response.setStatusCode(200);
-                response.setMessage("List of all moderators retrieved successfully.");
-            } else {
-                response.setStatusCode(404);
-                response.setMessage("No moderators found.");
-            }
-        } catch (Exception e) {
-            response.setStatusCode(500);
-            response.setMessage("Error occurred: " + e.getMessage());
-        }
-        return response;
+    public List<OurUsers> getAllModerators() {
+        // Retourner la liste des utilisateurs ayant le rôle "MODERATOR"
+        return usersRepo.findByRole(UserRole.MODERATOR);
     }
 
 

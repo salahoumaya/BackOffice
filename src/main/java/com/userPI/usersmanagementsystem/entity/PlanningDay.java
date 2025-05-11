@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -27,7 +28,7 @@ public class PlanningDay {
     @NotNull(message = "Day is required")
     @FutureOrPresent(message = "Day must be today or in the future")
     @Temporal(TemporalType.DATE)
-    private Date day;
+    private LocalDate day;
     @NotNull(message = "Start time is required")
     private LocalTime startTime;
     @NotNull(message = "Start time is required")

@@ -1,12 +1,8 @@
 package com.userPI.usersmanagementsystem.controller;
 
-import com.userPI.usersmanagementsystem.entity.Event;
-import com.userPI.usersmanagementsystem.entity.Reclamation;
-import com.userPI.usersmanagementsystem.entity.SujetPfe;
-import com.userPI.usersmanagementsystem.entity.Training;
+import com.userPI.usersmanagementsystem.entity.*;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.*;
-import com.userPI.usersmanagementsystem.service.Event.EventService;
 import com.userPI.usersmanagementsystem.service.Reclamation.ReclamationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +14,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user/reclamations")
-//@PreAuthorize("hasRole('ADMIN')")
 public class ReclamationController {
+
     @Autowired
     private ReclamationService reclamationService;
 
@@ -30,8 +26,7 @@ public class ReclamationController {
     @Autowired
     private SujetPfeRepo sujetPfeRepo;
 
-    @Autowired
-    private EventService eventService;
+
     @Autowired
     private EventRepository eventRepository;
     @Autowired
@@ -43,17 +38,21 @@ public class ReclamationController {
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
 
         try {
+
             String userEmail = userDetails.getUsername();
             OurUsers user = usersRepo.findByEmail(userEmail)
                     .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
 
             if (!validateRequestData(requestData)) {
                 return ResponseEntity.badRequest().body("Tous les champs sont obligatoires");
             }
 
+
             String type = requestData.get("type").toString().trim().toUpperCase();
             String title = requestData.get("title").toString().trim();
             String description = requestData.get("description").toString().trim();
+
 
             Object targetObj = requestData.get("targetId");
             Long eventId = null;
@@ -74,17 +73,18 @@ public class ReclamationController {
                     return ResponseEntity.badRequest().body("Type de réclamation invalide");
             }
 
-            // ✅ Appelle ton service qui contient la logique Rule-Based
+
             Reclamation reclamation = reclamationService.createReclamation(
                     user, type, eventId, trainingId, sujetpfeId, title, description);
+
 
             return ResponseEntity.ok(reclamation);
 
         } catch (Exception e) {
+
             return ResponseEntity.internalServerError().body("Erreur serveur: " + e.getMessage());
         }
     }
-
 
 
     private boolean validateRequestData(Map<String, Object> requestData) {
@@ -96,24 +96,20 @@ public class ReclamationController {
                 !requestData.get("description").toString().isBlank();
     }
 
-
     @GetMapping("/events")
-  public List<Event>getAllEvents() {
+    public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
-    // TrainingController
+
     @GetMapping("/trainings")
     public List<Training> getAllTrainings() {
         return trainingRepo.findAll();
     }
 
-    // SujetPfeController
     @GetMapping("/sujets-pfe")
     public List<SujetPfe> getAllSujetsPfe() {
         return sujetPfeRepo.findAll();
     }
-
-
 
     @GetMapping
     public ResponseEntity<List<Reclamation>> getAllReclamations() {
@@ -161,5 +157,4 @@ public class ReclamationController {
         reclamationRepository.save(reclamation);
         return ResponseEntity.ok().build();
     }
-
 }

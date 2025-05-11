@@ -80,5 +80,43 @@ public class CandidatureRestController {
                     .body("Erreur lors de l'envoi de l'email : " + e.getMessage());
         }
     }
+    @GetMapping("/search")
+    public List<Candidature> searchCandidatures(
+            @RequestParam(required = false) String nom,
+            @RequestParam(required = false) String prenom,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String specialite,
+            @RequestParam(required = false) String statut
+    ) {
+        return candidatureService.retrieveAllCandidatures().stream()
+                .filter(c -> nom == null || (c.getNom() != null && c.getNom().toLowerCase().contains(nom.toLowerCase())))
+                .filter(c -> prenom == null || (c.getPrenom() != null && c.getPrenom().toLowerCase().contains(prenom.toLowerCase())))
+                .filter(c -> email == null || (c.getEmail() != null && c.getEmail().toLowerCase().contains(email.toLowerCase())))
+                .filter(c -> specialite == null || (c.getSpecialite() != null && c.getSpecialite().toLowerCase().contains(specialite.toLowerCase())))
+                .filter(c -> statut == null || (c.getStatut() != null && c.getStatut().name().equalsIgnoreCase(statut)))
+                .toList();
+    }
+    @GetMapping("/sort")
+    public List<Candidature> sortCandidatures(
+            @RequestParam(defaultValue = "nom") String sortBy,
+            @RequestParam(defaultValue = "asc") String order
+    ) {
+        return candidatureService.retrieveAllCandidatures().stream()
+                .sorted((c1, c2) -> {
+                    int result = 0;
+
+                    switch (sortBy.toLowerCase()) {
+                        case "prenom" -> result = c1.getPrenom().compareToIgnoreCase(c2.getPrenom());
+                        case "email" -> result = c1.getEmail().compareToIgnoreCase(c2.getEmail());
+                        case "nbr_exp" -> result = Long.compare(c1.getNbr_exp(), c2.getNbr_exp());
+                        case "specialite" -> result = c1.getSpecialite().compareToIgnoreCase(c2.getSpecialite());
+                        case "statut" -> result = c1.getStatut().name().compareToIgnoreCase(c2.getStatut().name());
+
+                    }
+
+                    return "desc".equalsIgnoreCase(order) ? -result : result;
+                })
+                .toList();
+    }
 
 }

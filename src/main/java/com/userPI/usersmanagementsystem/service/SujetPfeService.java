@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class SujetPfeService implements ISujetPfeService {
-
-
     @Autowired
     private SujetPfeRepo sujetPfeRepository;
     @Autowired
@@ -120,6 +118,15 @@ public class SujetPfeService implements ISujetPfeService {
         sujetPfe.setUserAttribue(user);
         sujetPfe.getDemandeurs().remove(user);
 
+        // 🔥 Supprimer toutes les autres demandes de ce user
+        List<SujetPfe> allSujetsWithUserAsDemandeur = sujetPfeRepository.findAllByDemandeursContains(user);
+        for (SujetPfe s : allSujetsWithUserAsDemandeur) {
+            if (!s.getId().equals(sujetPfeId)) {
+                s.getDemandeurs().remove(user);
+                sujetPfeRepository.save(s);
+            }
+        }
+
         SujetPfe updatedSujet = sujetPfeRepository.save(sujetPfe);
         System.out.println("✅ Postulation acceptée pour : " + updatedSujet.getTitre());
         return updatedSujet;
@@ -186,6 +193,13 @@ public class SujetPfeService implements ISujetPfeService {
         return sujetPfeRepository.findByModeratorId(moderatorId);
     }
 
+
+    public Boolean couldPostulate(Integer userId) {
+        return sujetPfeRepository.findSujetPfeByUserAttribue_Id(userId).isEmpty();
+    }
+    public Optional<OurUsers> studentByPfe(Integer pfeId){
+        return sujetPfeRepository.findUserAttribueBySujetPfeId(pfeId);
+    }
 
 
 

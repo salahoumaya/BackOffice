@@ -22,6 +22,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sujets")
@@ -36,7 +37,7 @@ public class SujetPfeController {
     private static final String UPLOAD_DIR = "uploads/";
 
     // Ajouter un sujet
-    @PostMapping
+    @PostMapping("/admin")
     public SujetPfe ajouterSujet(@Valid @RequestBody SujetPfe sujetPfe) {
         return sujetPfeService.ajouterSujet(sujetPfe);
     }
@@ -92,7 +93,8 @@ public class SujetPfeController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PostMapping("/postuler/{sujetPfeId}/{userId}")
+
+    @PostMapping("/user/postuler/{sujetPfeId}/{userId}")
     public ResponseEntity<SujetPfe> postulerSujetPfe(@PathVariable Integer sujetPfeId, @PathVariable Integer userId) {
         SujetPfe sujetPfe = sujetPfeService.postulerSujetPfe(sujetPfeId, userId);
         if (sujetPfe != null) {
@@ -101,6 +103,7 @@ public class SujetPfeController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);  // Si la postulation échoue
         }
     }
+
     /*@PutMapping("/accepter/{sujetPfeId}/{userId}")
     public ResponseEntity<SujetPfe> accepterPostulation(@PathVariable Integer sujetPfeId, @PathVariable Integer userId) {
         SujetPfe sujetPfe = sujetPfeService.accepterPostulation(sujetPfeId, userId);
@@ -120,6 +123,7 @@ public class SujetPfeController {
         }
     }
 
+
     @PutMapping("/accepter/{sujetPfeId}/{userId}")
     public ResponseEntity<?> accepterPostulation(@PathVariable Integer sujetPfeId,
                                                  @PathVariable Integer userId) {
@@ -132,6 +136,7 @@ public class SujetPfeController {
             return ResponseEntity.status(404).body("Postulation non acceptée: Sujet ou utilisateur invalide.");
         }
 
+
         // Envoi de l'email si l'utilisateur est bien attribué
         if (updatedSujet.getUserAttribue() != null) {
             String emailReceiver = updatedSujet.getUserAttribue().getEmail();
@@ -143,6 +148,17 @@ public class SujetPfeController {
         return ResponseEntity.ok(updatedSujet);
     }
 
+    @GetMapping("/user/could-postulate/{userId}")
+    public ResponseEntity<Boolean> couldPostulate(@PathVariable Integer userId) {
+        return new ResponseEntity<>(sujetPfeService.couldPostulate(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/student-affected-to-subjet/{pfeId}")
+    public ResponseEntity<OurUsers> studentAffected(@PathVariable Integer pfeId) {
+        Optional<OurUsers> ourUsers = sujetPfeService.studentByPfe(pfeId);
+        return ourUsers.map(users -> new ResponseEntity<>(users, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
+    }
+
     @GetMapping("/demandeurs/{sujetPfeId}")
     public ResponseEntity<List<OurUsers>> getDemandeurs(@PathVariable Integer sujetPfeId) {
         List<OurUsers> demandeurs = sujetPfeService.getDemandeursBySujetPfe(sujetPfeId);
@@ -152,11 +168,13 @@ public class SujetPfeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Si le sujet n'existe pas
         }
     }
+
     //User affectes
     @GetMapping("/projets-affectes/{userId}")
     public List<SujetPfe> getProjetsAffectes(@PathVariable Integer userId) {
         return sujetPfeService.getProjetsAffectes(userId);
     }
+
     @GetMapping("/projets-postules/{userId}")
     public List<SujetPfe> getProjetsPostules(@PathVariable Integer userId) {
         return sujetPfeService.getProjetsPostules(userId);
@@ -167,7 +185,8 @@ public class SujetPfeController {
         List<SujetPfe> sujets = sujetPfeService.getSujetsNonPostules(userId);
         return ResponseEntity.ok(sujets);
     }
-    @PostMapping("/{id}/upload")
+
+    /*@PostMapping("/{id}/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
         Map<String, String> response = new HashMap<>();
         try {
@@ -182,7 +201,7 @@ public class SujetPfeController {
                 response.put("error", "Sujet non trouvé");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Si le sujet n'existe pas
             }
-            sujetPfe.setRapport(file.getOriginalFilename());
+            sujetPfe.setRapport(file.getBytes());
             sujetPfeService.ajouterSujet(sujetPfe);
 
             response.put("message", "Le rapport a été téléchargé avec succès");
@@ -191,16 +210,18 @@ public class SujetPfeController {
             response.put("error", "Erreur lors du dépôt du fichier: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-    }
+    }*/
 
     @GetMapping("/moderateur/{moderatorId}")
     public List<SujetPfe> getSujetsAffectesModerateur(@PathVariable Integer moderatorId) {
         return sujetPfeService.getSujetsAffectesModerateur(moderatorId);
     }
+
     @GetMapping("/pourcentage-attribues")
     public ResponseEntity<Double> getPourcentageSujetsAttribues() {
         double pourcentage = sujetPfeService.calculerPourcentageSujetsAttribues();
         return ResponseEntity.ok(pourcentage);
     }
+
 
 }

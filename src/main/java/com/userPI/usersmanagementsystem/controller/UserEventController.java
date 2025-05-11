@@ -10,7 +10,9 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.userPI.usersmanagementsystem.dto.EventDTO;
 import com.userPI.usersmanagementsystem.dto.ReservationDTO;
 
+import com.userPI.usersmanagementsystem.entity.Event;
 import com.userPI.usersmanagementsystem.service.Event.EventService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/events/user")
@@ -34,10 +37,10 @@ public class UserEventController {
     @Autowired
     EventService eventService;
     @GetMapping("/upcoming")
-    public List<EventDTO> getUpcomingEvents() {
+    public List<Event> getUpcomingEvents() {
         return eventService.getUpcomingEvents();
     }
-
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/reserve")
     public ResponseEntity<String> reserveEvent(@RequestBody ReservationDTO reservationDTO) {
         String message = eventService.reserveEvent(reservationDTO);
@@ -48,42 +51,57 @@ public class UserEventController {
     }
 // Assurez-vous que ce service existe et permet de récupérer un Event
 
-        @GetMapping("/qr/{eventId}")
-        public void generateEventQRCode(@PathVariable Long eventId, HttpServletResponse response) {
-            try {
-                // Construire une URL pointant vers votre front-end (à adapter selon votre besoin)
-                String qrContent = "http://localhost:4200/api/events/" + eventId;
-                int width = 300;
-                int height = 300;
-                QRCodeWriter qrCodeWriter = new QRCodeWriter();
-                BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
+    @GetMapping("/qr/{eventId}")
+    public void generateEventQRCode(@PathVariable Long eventId, HttpServletResponse response) {
+        try {
+            // Construire une URL pointant vers votre front-end (à adapter selon votre besoin)
+            String qrContent = "http://localhost:4200/api/events/" + eventId;
+            int width = 300;
+            int height = 300;
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
 
-                response.setContentType("image/png");
-                OutputStream outputStream = response.getOutputStream();
-                MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-                outputStream.close();
-            } catch (WriterException | IOException e) {
-                e.printStackTrace();
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        // 2️⃣ Génère un QR Code en se basant sur les informations de l'événement
-
-
-        // Méthode utilitaire statique pour générer l'image du QR Code à partir d'un Event
-        public static BufferedImage generateQRCodeImage(EventDTO event) throws Exception {
-            if (event != null) {
-                // Construction du contenu du QR Code en utilisant les détails de l'événement
-                String qrContent = String.format("Event ID: %d | Title: %s | Date: %s",
-                        event.getEventId(), event.getTitle(), event.getScheduledAt().toString());
-
-                QRCodeWriter qrCodeWriter = new QRCodeWriter();
-                BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, 200, 200);
-                return MatrixToImageWriter.toBufferedImage(bitMatrix);
-            }
-            return null;
+            response.setContentType("image/png");
+            OutputStream outputStream = response.getOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+            outputStream.close();
+        } catch (WriterException | IOException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
+    // 2️⃣ Génère un QR Code en se basant sur les informations de l'événement
 
+
+    // Méthode utilitaire statique pour générer l'image du QR Code à partir d'un Event
+    public static BufferedImage generateQRCodeImage(EventDTO event) throws Exception {
+        if (event != null) {
+            // Construction du contenu du QR Code en utilisant les détails de l'événement
+            String qrContent = String.format("Event ID: %d | Title: %s | Date: %s",
+                    event.getEventId(), event.getTitle(), event.getScheduledAt().toString());
+
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, 200, 200);
+            return MatrixToImageWriter.toBufferedImage(bitMatrix);
+        }
+        return null;
+    }
+
+    @PostMapping("/add-reservation")
+    public ResponseEntity<?> addReservation(@RequestBody ReservationDTO reservationDTO) {
+        String message = eventService.reserveEvent(reservationDTO);
+        if (message.contains("complet")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    Map.of("message", message)
+            );
+        }
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+
+    @GetMapping("/my-reservations/{userId}")
+    public ResponseEntity<List<EventDTO>> getUserReservations(@PathVariable Long userId) {
+        List<EventDTO> userReservations = eventService.getReservationsByUserId(userId);
+        return ResponseEntity.ok(userReservations);
+    }
+}

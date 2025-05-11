@@ -1,8 +1,10 @@
 package com.userPI.usersmanagementsystem.controller;
 
 import com.userPI.usersmanagementsystem.dto.EventDTO;
+import com.userPI.usersmanagementsystem.entity.Event;
 import com.userPI.usersmanagementsystem.entity.user.OurUsers;
 import com.userPI.usersmanagementsystem.repository.UsersRepo;
+
 
 import com.userPI.usersmanagementsystem.service.Event.EmailServiceEvent;
 import com.userPI.usersmanagementsystem.service.Event.EventService;
@@ -11,8 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.mail.javamail.JavaMailSender;
 
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +38,6 @@ public class EventController {
 
 
     @PreAuthorize("hasRole('ADMIN')") // Vérifie que l'utilisateur est admin
-    // 1️⃣ Ajouter un événement (Admin)
     @PostMapping("/admin/create-event")
     public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO) {
         EventDTO createdEvent = eventService.addEvent(eventDTO);
@@ -57,7 +62,7 @@ public class EventController {
         }
 
         return ResponseEntity.ok(createdEvent);
-        }
+    }
 
 
     // 2️⃣ Modifier un événement (Admin)
@@ -75,7 +80,7 @@ public class EventController {
     // 4️⃣ Voir les événements à venir (Étudiant)
     @PreAuthorize("hasRole('ADMIN')") // Vérifie que l'utilisateur est admin
     @GetMapping("/admin/upcoming")
-    public List<EventDTO> getUpcomingEvents() {
+    public List<Event> getUpcomingEvents() {
         return eventService.getUpcomingEvents();
     }
 
